@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Environment & secrets
+config/.env
+.env
+*.env
+*.pem
+*.key
+
+# Output & generated artifacts
+output/generated/*.png
+output/generated/*.jpg
+output/generated/*.jpeg
+output/generated/*.webp
+input/raw/*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node (for .kilo/)
+.kilo/
+node_modules/
+package-lock.json

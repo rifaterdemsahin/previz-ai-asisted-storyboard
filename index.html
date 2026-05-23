@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Claude Code Certificate — AI Storyboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0f172a;
+            --bg-elevated: #1e293b;
+            --bg-card: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg) 100%);
+            border-bottom: 1px solid var(--bg-card);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg);
+            padding: 0.3rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--bg-card);
+        }
+        .view-toggle button {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .view-toggle button.active {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .view-toggle button:hover:not(.active) {
+            color: var(--text);
+        }
+
+        /* Main */
+        main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Carousel */
+        .carousel-container {
+            display: none;
+        }
+        .carousel-container.active {
+            display: block;
+        }
+        .carousel-stage {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .carousel-image-wrapper {
+            flex: 1;
+            max-width: 900px;
+            aspect-ratio: 1;
+            background: var(--bg-elevated);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--bg-card);
+            position: relative;
+        }
+        .carousel-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .carousel-image-wrapper .placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            gap: 1rem;
+        }
+        .carousel-image-wrapper .placeholder svg {
+            width: 80px;
+            height: 80px;
+            opacity: 0.4;
+        }
+        .carousel-image-wrapper .placeholder p {
+            font-size: 0.9rem;
+        }
+        .carousel-btn {
+            background: var(--bg-elevated);
+            border: 1px solid var(--bg-card);
+            color: var(--text);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .carousel-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg);
+        }
+        .carousel-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .chapter-info {
+            background: var(--bg-elevated);
+            border-radius: var(--radius);
+            padding: 1.5rem 2rem;
+            border: 1px solid var(--bg-card);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .chapter-info .chapter-num {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .chapter-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .chapter-info .setting {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        .chapter-info .story-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+        .chapter-info .prompt {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-left: 3px solid var(--accent);
+            padding-left: 0.8rem;
+            font-style: italic;
+        }
+        .chapter-info .prompt-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        /* Storyboard */
+        .storyboard-container {
+            display: none;
+        }
+        .storyboard-container.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .story-card {
+            background: var(--bg-elevated);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--bg-card);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .story-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--accent);
+        }
+        .story-card .card-image {
+            aspect-ratio: 1;
+            background: var(--bg);
+            position: relative;
+            overflow: hidden;
+        }
+        .story-card .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .story-card .card-image .placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            gap: 0.5rem;
+        }
+        .story-card .card-image .placeholder svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.3;
+        }
+        .story-card .card-body {
+            padding: 1rem;
+        }
+        .story-card .card-chapter {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+        }
+        .story-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        .story-card .card-setting {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .story-card .card-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .generate-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: var(--warning);
+            color: var(--bg);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        .generated-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: var(--success);
+            color: var(--bg);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-elevated);
+            border-radius: var(--radius);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--bg-card);
+            box-shadow: var(--shadow);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--bg-card);
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+        .modal-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header { padding: 1rem; }
+            main { padding: 1rem; }
+            .carousel-stage { flex-direction: column; }
+            .carousel-btn { width: 40px; height: 40px; }
+            .carousel-image-wrapper { max-width: 100%; }
+            .storyboard-container.active { grid-template-columns: 1fr; }
+            .chapter-info { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <div class="logo">The Claude Code Certificate</div>
+            <div class="subtitle">AI-Assisted Storyboard Generator &middot; 9 Chapters</div>
+        </div>
+        <div class="view-toggle">
+            <button id="btn-carousel" class="active" onclick="showView('carousel')">Carousel</button>
+            <button id="btn-storyboard" onclick="showView('storyboard')">Storyboard</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Carousel View -->
+        <div id="carousel-view" class="carousel-container active">
+            <div class="carousel-stage">
+                <button class="carousel-btn" id="prevBtn" onclick="prevChapter()" aria-label="Previous">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <div class="carousel-image-wrapper" id="carouselImage">
+                    <div class="placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        <p>Image will appear here after generation</p>
+                    </div>
+                </div>
+                <button class="carousel-btn" id="nextBtn" onclick="nextChapter()" aria-label="Next">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+            <div class="chapter-info" id="chapterInfo">
+                <span class="chapter-num">Chapter 1</span>
+                <h2 id="infoTitle">The Discovery</h2>
+                <div class="setting" id="infoSetting">Berlin coffee shop, afternoon</div>
+                <p class="story-text" id="infoText">Loading...</p>
+                <div>
+                    <div class="prompt-label">Image Prompt</div>
+                    <div class="prompt" id="infoPrompt">...</div>
+                </div>
+            </div>
+            <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+
+        <!-- Storyboard View -->
+        <div id="storyboard-view" class="storyboard-container"></div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modalTitle">Chapter</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-image" id="modalImage"></div>
+            <div class="modal-body">
+                <div class="setting" id="modalSetting"></div>
+                <p class="story-text" id="modalText"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chapters = [
+            {"num":1,"title":"The Discovery","setting":"Berlin coffee shop, afternoon","text":"Alex had been stuck on the same bug for three hours. His coffee had gone cold, and the Berlin rain tapped against the café window. A Slack message from his friend lit up his phone: 'Have you tried Claude Code? It changed everything for me.' Skeptical but desperate, Alex opened his terminal and typed the install command. Within minutes, a soft blue interface appeared, waiting patiently for his first natural-language command.","prompt":"A young developer sitting in a cozy Berlin coffee shop with rain on the windows, laptop open showing a terminal with a glowing blue AI interface, warm ambient lighting mixing with cool screen light, cinematic, highly detailed","file":"txt2img_ch01_the_discovery.png"},
+            {"num":2,"title":"First Command","setting":"Alex's apartment, evening","text":"'Refactor the authentication module to use JWT tokens,' Alex typed, half-expecting silence. Instead, Claude analyzed the entire codebase, highlighted the vulnerable sections, and produced a clean diff. Alex watched in awe as the AI explained each change, line by line, like a patient senior engineer pair-programming at 2 AM. He applied the changes, ran the tests, and for the first time in weeks, everything passed on the first try.","prompt":"A developer at a desk late at night, laptop screen showing split view of code diff and explanatory comments, warm desk lamp illuminating his focused face, the room dark except for the screen glow, sense of breakthrough and wonder, cinematic","file":"txt2img_ch02_first_command.png"},
+            {"num":3,"title":"The Real Project","setting":"Alex's home office, weekend","text":"Emboldened by his first success, Alex decided to build something real—a task management API he had been procrastinating on for months. 'Generate a FastAPI project with SQLModel, async CRUD endpoints, and comprehensive tests,' he commanded. Claude scaffolded the entire architecture, set up Docker files, and even wrote the README. Alex found himself in a flow state he hadn't experienced since his early coding days, guided by an invisible hand that never judged, never tired, and always knew the next step.","prompt":"A bright home office on a weekend morning, developer leaning back in his chair looking at a complex project structure on a large monitor, multiple terminal windows showing FastAPI and Docker outputs, plants and natural light, productive and focused atmosphere, highly detailed","file":"txt2img_ch03_the_real_project.png"},
+            {"num":4,"title":"The Bug Hunt","setting":"Alex's apartment, 3 AM","text":"Production was down. The logs were a cryptic mess of stack traces. Alex's heart pounded as he pasted the error into Claude. 'Analyze these logs and trace the root cause,' he typed, voice tight with stress. Claude methodically filtered the noise, identified the race condition in the async handler, and pointed to the exact line where the connection pool was being exhausted. 'Fix it by adding a semaphore here,' Claude suggested, complete with a patch. Alex deployed at 3:47 AM. The monitors went green. He exhaled for what felt like the first time in hours.","prompt":"Tense late-night debugging scene, developer leaning close to a monitor showing complex log output with highlighted error lines, dark room lit only by multiple screens, sweat on his brow, dramatic tension, the moment before a breakthrough, cinematic lighting","file":"txt2img_ch04_the_bug_hunt.png"},
+            {"num":5,"title":"The Refactor","setting":"Alex's apartment, Sunday afternoon","text":"Looking at the codebase he had built with Claude, Alex realized it worked but was messy—tight coupling, duplicated logic, no clear separation of concerns. 'Suggest an architecture refactor following clean hexagonal principles,' he asked. Claude produced a detailed plan: domain models in the center, ports and adapters on the edges, a clear dependency direction. Over the next four hours, they transformed the tangled web into something elegant. Alex began to see patterns he had only read about in books, now made concrete through collaborative execution.","prompt":"A developer working at a clean desk with diagrams and architecture sketches on a second monitor, laptop showing beautifully organized code with clear module boundaries, bright afternoon sunlight, sense of clarity and order emerging from chaos, highly detailed","file":"txt2img_ch05_the_refactor.png"},
+            {"num":6,"title":"The Test Suite","setting":"Alex's apartment, Tuesday evening","text":"'I want 90% coverage with meaningful tests, not just line-hitting,' Alex declared. Claude generated property-based tests, edge-case scenarios, and integration tests with mocked external services. It explained why each test mattered, what failure mode it caught, and how to read the coverage reports. As Alex watched the test count climb from 12 to 147, he felt a new confidence. His code wasn't just functional anymore—it was defensible, maintainable, professional.","prompt":"A developer watching a test suite run on a large monitor, green checkmarks cascading down the screen, celebratory warm lighting, organized desk with test documentation visible, sense of accomplishment and professionalism, cinematic","file":"txt2img_ch06_the_test_suite.png"},
+            {"num":7,"title":"Code Review","setting":"Alex's apartment, Thursday morning","text":"Before submitting to the course, Alex ran his project through Claude one last time. 'Perform a senior-engineer code review. Be critical.' Claude didn't hold back: the error handling was shallow, the pagination was missing, and the naming conventions were inconsistent. It suggested specific renames, pointed out where exceptions would leak, and recommended a cursor-based pagination strategy. Alex fixed every issue, not because he had to, but because Claude made the 'why' so clear. When he finally pushed, the commit message read: 'Ready for review.'","prompt":"Developer at a standing desk reviewing code with annotations and review comments visible on screen, morning light streaming through blinds creating dramatic stripes, focused and critical analysis, professional atmosphere, highly detailed","file":"txt2img_ch07_code_review.png"},
+            {"num":8,"title":"The Documentation","setting":"Alex's apartment, Friday afternoon","text":"The last requirement was documentation. 'Generate API docs, deployment guide, and a getting-started README,' Alex requested. Claude produced a README that explained the project architecture, a CONTRIBUTING.md with setup instructions, and inline API documentation that actually made sense. It even suggested a GitHub Actions workflow for CI/CD. As Alex read through the final docs, he realized he had not just built a project—he had built a product, something another developer could pick up and understand without ever meeting him.","prompt":"A developer leaning back reading a beautifully formatted README on a monitor, the desk organized with notebooks and a coffee cup, soft Friday afternoon light, sense of completion and polish, warm and satisfying atmosphere, cinematic","file":"txt2img_ch08_the_documentation.png"},
+            {"num":9,"title":"The Certificate","setting":"Online course platform, Monday morning","text":"Alex submitted his final project on Sunday night. Monday morning, an email arrived: 'Congratulations, you have successfully completed the Claude Code Mastery Certification.' Attached was a digital certificate with his name, the completion date, and a blockchain-verified credential ID. He stared at it for a long moment, then opened his terminal. 'Thank you,' he typed to Claude, though he knew it was just a machine. 'What's next?' The cursor blinked, waiting. And for the first time, Alex felt not just like a coder, but like a craftsman with a powerful new tool in his belt.","prompt":"A developer sitting at his desk looking at a certificate on screen with a proud smile, the certificate framed beautifully with his name and completion details, terminal window visible in background with a friendly AI prompt, bright optimistic morning light, sense of achievement and new beginning, highly detailed, cinematic","file":"txt2img_ch09_the_certificate.png"}
+        ];
+
+        let currentChapter = 0;
+        const imageBase = 'output/generated/';
+
+        function showView(view) {
+            document.getElementById('carousel-view').classList.toggle('active', view === 'carousel');
+            document.getElementById('storyboard-view').classList.toggle('active', view === 'storyboard');
+            document.getElementById('btn-carousel').classList.toggle('active', view === 'carousel');
+            document.getElementById('btn-storyboard').classList.toggle('active', view === 'storyboard');
+        }
+
+        function renderCarousel() {
+            const ch = chapters[currentChapter];
+            const imgPath = imageBase + ch.file;
+
+            // Image
+            const imgWrapper = document.getElementById('carouselImage');
+            imgWrapper.innerHTML = '';
+            const img = new Image();
+            img.src = imgPath;
+            img.alt = ch.title;
+            img.onload = () => { imgWrapper.innerHTML = ''; imgWrapper.appendChild(img); };
+            img.onerror = () => {
+                imgWrapper.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>Run <code>python3 src/generators/batch.py</code> to generate this image</p></div>`;
+            };
+
+            // Info
+            document.getElementById('infoTitle').textContent = ch.title;
+            document.getElementById('infoSetting').textContent = ch.setting;
+            document.getElementById('infoText').textContent = ch.text;
+            document.getElementById('infoPrompt').textContent = ch.prompt;
+            document.querySelector('.chapter-num').textContent = `Chapter ${ch.num}`;
+
+            // Buttons
+            document.getElementById('prevBtn').disabled = currentChapter === 0;
+            document.getElementById('nextBtn').disabled = currentChapter === chapters.length - 1;
+
+            // Dots
+            const dots = document.getElementById('carouselDots');
+            dots.innerHTML = '';
+            chapters.forEach((_, i) => {
+                const d = document.createElement('div');
+                d.className = 'dot' + (i === currentChapter ? ' active' : '');
+                d.onclick = () => { currentChapter = i; renderCarousel(); };
+                dots.appendChild(d);
+            });
+        }
+
+        function prevChapter() {
+            if (currentChapter > 0) { currentChapter--; renderCarousel(); }
+        }
+        function nextChapter() {
+            if (currentChapter < chapters.length - 1) { currentChapter++; renderCarousel(); }
+        }
+
+        function renderStoryboard() {
+            const container = document.getElementById('storyboard-view');
+            container.innerHTML = '';
+            chapters.forEach((ch, i) => {
+                const imgPath = imageBase + ch.file;
+                const card = document.createElement('div');
+                card.className = 'story-card';
+                card.onclick = () => openModal(i);
+
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'card-image';
+
+                const img = new Image();
+                img.src = imgPath;
+                img.onload = () => {
+                    imgDiv.innerHTML = '';
+                    imgDiv.appendChild(img);
+                    const badge = document.createElement('span');
+                    badge.className = 'generated-badge';
+                    badge.textContent = 'Generated';
+                    imgDiv.appendChild(badge);
+                };
+                img.onerror = () => {
+                    imgDiv.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:0.75rem">Not yet generated</p></div>`;
+                    const badge = document.createElement('span');
+                    badge.className = 'generate-badge';
+                    badge.textContent = 'Generate';
+                    imgDiv.appendChild(badge);
+                };
+
+                const body = document.createElement('div');
+                body.className = 'card-body';
+                body.innerHTML = `
+                    <div class="card-chapter">Chapter ${ch.num}</div>
+                    <h3>${ch.title}</h3>
+                    <div class="card-setting">${ch.setting}</div>
+                    <p class="card-text">${ch.text}</p>
+                `;
+
+                card.appendChild(imgDiv);
+                card.appendChild(body);
+                container.appendChild(card);
+            });
+        }
+
+        function openModal(index) {
+            const ch = chapters[index];
+            const imgPath = imageBase + ch.file;
+            document.getElementById('modalTitle').textContent = `Chapter ${ch.num}: ${ch.title}`;
+            document.getElementById('modalSetting').textContent = ch.setting;
+            document.getElementById('modalText').textContent = ch.text;
+
+            const imgDiv = document.getElementById('modalImage');
+            imgDiv.innerHTML = '';
+            const img = new Image();
+            img.src = imgPath;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.onload = () => { imgDiv.innerHTML = ''; imgDiv.appendChild(img); };
+            img.onerror = () => {
+                imgDiv.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>Image not yet generated</p></div>`;
+            };
+
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal(e) {
+            if (!e || e.target.id === 'modal') {
+                document.getElementById('modal').classList.remove('active');
+            }
+        }
+
+        // Keyboard nav
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('carousel-view').classList.contains('active')) return;
+            if (e.key === 'ArrowLeft') prevChapter();
+            if (e.key === 'ArrowRight') nextChapter();
+        });
+
+        // Init
+        renderCarousel();
+        renderStoryboard();
+    </script>
+</body>
+</html>

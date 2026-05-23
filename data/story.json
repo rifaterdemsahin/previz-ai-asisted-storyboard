@@ -1,0 +1,92 @@
+{
+  "title": "The Claude Code Certificate",
+  "seed_image_url": null,
+  "characters": {
+    "alex": {
+      "name": "Alex",
+      "age": 28,
+      "profession": "Software developer",
+      "location": "Berlin, Germany",
+      "appearance": "A focused young developer with short dark hair, wearing casual tech hoodies and glasses, often seen hunched over a laptop in a coffee shop or home office."
+    },
+    "claude": {
+      "name": "Claude",
+      "age": null,
+      "profession": "AI coding assistant",
+      "location": "The terminal",
+      "appearance": "Represented as a glowing interface, soft blue light, clean modern UI with the Claude logo, helpful and precise."
+    },
+    "mentor": {
+      "name": "Sarah",
+      "age": 35,
+      "profession": "Senior engineer & course instructor",
+      "location": "Remote",
+      "appearance": "A confident senior engineer with a warm smile, professional but approachable, often appears on video calls with a clean background."
+    }
+  },
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "The Discovery",
+      "setting": "Berlin coffee shop, afternoon",
+      "text": "Alex had been stuck on the same bug for three hours. His coffee had gone cold, and the Berlin rain tapped against the café window. A Slack message from his friend lit up his phone: 'Have you tried Claude Code? It changed everything for me.' Skeptical but desperate, Alex opened his terminal and typed the install command. Within minutes, a soft blue interface appeared, waiting patiently for his first natural-language command.",
+      "image_prompt": "A young developer sitting in a cozy Berlin coffee shop with rain on the windows, laptop open showing a terminal with a glowing blue AI interface, warm ambient lighting mixing with cool screen light, cinematic, highly detailed"
+    },
+    {
+      "chapter": 2,
+      "title": "First Command",
+      "setting": "Alex's apartment, evening",
+      "text": "'Refactor the authentication module to use JWT tokens,' Alex typed, half-expecting silence. Instead, Claude analyzed the entire codebase, highlighted the vulnerable sections, and produced a clean diff. Alex watched in awe as the AI explained each change, line by line, like a patient senior engineer pair-programming at 2 AM. He applied the changes, ran the tests, and for the first time in weeks, everything passed on the first try.",
+      "image_prompt": "A developer at a desk late at night, laptop screen showing split view of code diff and explanatory comments, warm desk lamp illuminating his focused face, the room dark except for the screen glow, sense of breakthrough and wonder, cinematic"
+    },
+    {
+      "chapter": 3,
+      "title": "The Real Project",
+      "setting": "Alex's home office, weekend",
+      "text": "Emboldened by his first success, Alex decided to build something real—a task management API he had been procrastinating on for months. 'Generate a FastAPI project with SQLModel, async CRUD endpoints, and comprehensive tests,' he commanded. Claude scaffolded the entire architecture, set up Docker files, and even wrote the README. Alex found himself in a flow state he hadn't experienced since his early coding days, guided by an invisible hand that never judged, never tired, and always knew the next step.",
+      "image_prompt": "A bright home office on a weekend morning, developer leaning back in his chair looking at a complex project structure on a large monitor, multiple terminal windows showing FastAPI and Docker outputs, plants and natural light, productive and focused atmosphere, highly detailed"
+    },
+    {
+      "chapter": 4,
+      "title": "The Bug Hunt",
+      "setting": "Alex's apartment, 3 AM",
+      "text": "Production was down. The logs were a cryptic mess of stack traces. Alex's heart pounded as he pasted the error into Claude. 'Analyze these logs and trace the root cause,' he typed, voice tight with stress. Claude methodically filtered the noise, identified the race condition in the async handler, and pointed to the exact line where the connection pool was being exhausted. 'Fix it by adding a semaphore here,' Claude suggested, complete with a patch. Alex deployed at 3:47 AM. The monitors went green. He exhaled for what felt like the first time in hours.",
+      "image_prompt": "Tense late-night debugging scene, developer leaning close to a monitor showing complex log output with highlighted error lines, dark room lit only by multiple screens, sweat on his brow, dramatic tension, the moment before a breakthrough, cinematic lighting"
+    },
+    {
+      "chapter": 5,
+      "title": "The Refactor",
+      "setting": "Alex's apartment, Sunday afternoon",
+      "text": "Looking at the codebase he had built with Claude, Alex realized it worked but was messy—tight coupling, duplicated logic, no clear separation of concerns. 'Suggest an architecture refactor following clean hexagonal principles,' he asked. Claude produced a detailed plan: domain models in the center, ports and adapters on the edges, a clear dependency direction. Over the next four hours, they transformed the tangled web into something elegant. Alex began to see patterns he had only read about in books, now made concrete through collaborative execution.",
+      "image_prompt": "A developer working at a clean desk with diagrams and architecture sketches on a second monitor, laptop showing beautifully organized code with clear module boundaries, bright afternoon sunlight, sense of clarity and order emerging from chaos, highly detailed"
+    },
+    {
+      "chapter": 6,
+      "title": "The Test Suite",
+      "setting": "Alex's apartment, Tuesday evening",
+      "text": "'I want 90% coverage with meaningful tests, not just line-hitting,' Alex declared. Claude generated property-based tests, edge-case scenarios, and integration tests with mocked external services. It explained why each test mattered, what failure mode it caught, and how to read the coverage reports. As Alex watched the test count climb from 12 to 147, he felt a new confidence. His code wasn't just functional anymore—it was defensible, maintainable, professional.",
+      "image_prompt": "A developer watching a test suite run on a large monitor, green checkmarks cascading down the screen, celebratory warm lighting, organized desk with test documentation visible, sense of accomplishment and professionalism, cinematic"
+    },
+    {
+      "chapter": 7,
+      "title": "Code Review",
+      "setting": "Alex's apartment, Thursday morning",
+      "text": "Before submitting to the course, Alex ran his project through Claude one last time. 'Perform a senior-engineer code review. Be critical.' Claude didn't hold back: the error handling was shallow, the pagination was missing, and the naming conventions were inconsistent. It suggested specific renames, pointed out where exceptions would leak, and recommended a cursor-based pagination strategy. Alex fixed every issue, not because he had to, but because Claude made the 'why' so clear. When he finally pushed, the commit message read: 'Ready for review.'",
+      "image_prompt": "Developer at a standing desk reviewing code with annotations and review comments visible on screen, morning light streaming through blinds creating dramatic stripes, focused and critical analysis, professional atmosphere, highly detailed"
+    },
+    {
+      "chapter": 8,
+      "title": "The Documentation",
+      "setting": "Alex's apartment, Friday afternoon",
+      "text": "The last requirement was documentation. 'Generate API docs, deployment guide, and a getting-started README,' Alex requested. Claude produced a README that explained the project architecture, a CONTRIBUTING.md with setup instructions, and inline API documentation that actually made sense. It even suggested a GitHub Actions workflow for CI/CD. As Alex read through the final docs, he realized he had not just built a project—he had built a product, something another developer could pick up and understand without ever meeting him.",
+      "image_prompt": "A developer leaning back reading a beautifully formatted README on a monitor, the desk organized with notebooks and a coffee cup, soft Friday afternoon light, sense of completion and polish, warm and satisfying atmosphere, cinematic"
+    },
+    {
+      "chapter": 9,
+      "title": "The Certificate",
+      "setting": "Online course platform, Monday morning",
+      "text": "Alex submitted his final project on Sunday night. Monday morning, an email arrived: 'Congratulations, you have successfully completed the Claude Code Mastery Certification.' Attached was a digital certificate with his name, the completion date, and a blockchain-verified credential ID. He stared at it for a long moment, then opened his terminal. 'Thank you,' he typed to Claude, though he knew it was just a machine. 'What's next?' The cursor blinked, waiting. And for the first time, Alex felt not just like a coder, but like a craftsman with a powerful new tool in his belt.",
+      "image_prompt": "A developer sitting at his desk looking at a certificate on screen with a proud smile, the certificate framed beautifully with his name and completion details, terminal window visible in background with a friendly AI prompt, bright optimistic morning light, sense of achievement and new beginning, highly detailed, cinematic"
+    }
+  ]
+}

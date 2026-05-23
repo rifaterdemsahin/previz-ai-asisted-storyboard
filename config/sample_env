@@ -1,0 +1,13 @@
+# Copy this file to config/.env and fill in your real values.
+# NEVER commit config/.env to git. It is ignored by .gitignore.
+
+# RunPod API key (required)
+# Get yours from: https://www.runpod.io/console/settings
+RUNPOD_API_KEY=your_runpod_api_key_here
+
+# RunPod Serverless endpoint ID (optional — falls back to default in scripts)
+# Create an endpoint at: https://www.runpod.io/console/serverless
+RUNPOD_ENDPOINT_ID=b6cpv4fbec236e
+
+# Optional: OpenAI API key (for Whisper transcription if needed)
+OPENAI_API_KEY=your_openai_api_key_here

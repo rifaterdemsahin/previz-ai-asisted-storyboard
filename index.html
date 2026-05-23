@@ -26,6 +26,8 @@
             color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
@@ -51,6 +53,34 @@
             color: var(--text-muted);
             margin-top: 0.2rem;
         }
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .header-actions a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--bg-card);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .header-actions a:hover {
+            color: var(--text);
+            border-color: var(--accent);
+            background: var(--bg);
+        }
+        .header-actions a svg {
+            width: 16px;
+            height: 16px;
+        }
+
         .view-toggle {
             display: flex;
             gap: 0.5rem;
@@ -83,6 +113,8 @@
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
+            flex: 1;
         }
 
         /* Generate Panel */
@@ -106,18 +138,6 @@
             flex-wrap: wrap;
             align-items: center;
         }
-        .generate-row input[type="password"],
-        .generate-row input[type="text"] {
-            background: var(--bg);
-            border: 1px solid var(--bg-card);
-            color: var(--text);
-            padding: 0.6rem 0.9rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            min-width: 260px;
-            flex: 1;
-        }
-        .generate-row input::placeholder { color: var(--text-muted); }
         .generate-row button {
             background: var(--accent);
             color: var(--bg);
@@ -129,20 +149,11 @@
             transition: all 0.2s;
             white-space: nowrap;
         }
-        .generate-row button:hover {
-            filter: brightness(1.1);
-        }
-        .generate-row button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .generate-row label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            cursor: pointer;
+        .generate-row button:hover { filter: brightness(1.1); }
+        .generate-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .generate-row button.secondary {
+            background: var(--bg-card);
+            color: var(--text);
         }
         .status-bar {
             margin-top: 1rem;
@@ -162,32 +173,10 @@
             font-family: "SF Mono", Monaco, monospace;
             font-size: 0.8em;
         }
-        .fallback-box {
-            margin-top: 1rem;
-            background: var(--bg);
-            border: 1px dashed var(--bg-card);
-            border-radius: 8px;
-            padding: 1rem;
-            display: none;
-        }
-        .fallback-box.active { display: block; }
-        .fallback-box pre {
-            background: #0b1220;
-            padding: 0.75rem;
-            border-radius: 6px;
-            overflow-x: auto;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
 
         /* Carousel */
-        .carousel-container {
-            display: none;
-        }
-        .carousel-container.active {
-            display: block;
-        }
+        .carousel-container { display: none; }
+        .carousel-container.active { display: block; }
         .carousel-stage {
             display: flex;
             align-items: center;
@@ -227,9 +216,6 @@
             height: 80px;
             opacity: 0.4;
         }
-        .carousel-image-wrapper .placeholder p {
-            font-size: 0.9rem;
-        }
         .carousel-btn {
             background: var(--bg-elevated);
             border: 1px solid var(--bg-card);
@@ -244,15 +230,8 @@
             transition: all 0.2s;
             flex-shrink: 0;
         }
-        .carousel-btn:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--bg);
-        }
-        .carousel-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
+        .carousel-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+        .carousel-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .chapter-info {
             background: var(--bg-elevated);
@@ -272,65 +251,19 @@
             border-radius: 4px;
             margin-bottom: 0.5rem;
         }
-        .chapter-info h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.3rem;
-        }
-        .chapter-info .setting {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-        .chapter-info .story-text {
-            font-size: 1rem;
-            line-height: 1.7;
-            color: var(--text);
-            margin-bottom: 1rem;
-        }
-        .chapter-info .prompt {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            border-left: 3px solid var(--accent);
-            padding-left: 0.8rem;
-            font-style: italic;
-        }
-        .chapter-info .prompt-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--accent);
-            margin-bottom: 0.3rem;
-        }
+        .chapter-info h2 { font-size: 1.5rem; margin-bottom: 0.3rem; }
+        .chapter-info .setting { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+        .chapter-info .story-text { font-size: 1rem; line-height: 1.7; color: var(--text); margin-bottom: 1rem; }
+        .chapter-info .prompt { font-size: 0.8rem; color: var(--text-muted); border-left: 3px solid var(--accent); padding-left: 0.8rem; font-style: italic; }
+        .chapter-info .prompt-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 0.3rem; }
 
-        .carousel-dots {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-        }
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--bg-card);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .dot.active {
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent-glow);
-        }
+        .carousel-dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bg-card); cursor: pointer; transition: all 0.2s; }
+        .dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 
         /* Storyboard */
-        .storyboard-container {
-            display: none;
-        }
-        .storyboard-container.active {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-        }
+        .storyboard-container { display: none; }
+        .storyboard-container.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
         .story-card {
             background: var(--bg-elevated);
             border-radius: var(--radius);
@@ -339,176 +272,65 @@
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
         }
-        .story-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow);
-            border-color: var(--accent);
-        }
-        .story-card .card-image {
-            aspect-ratio: 1;
-            background: var(--bg);
-            position: relative;
-            overflow: hidden;
-        }
-        .story-card .card-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+        .story-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--accent); }
+        .story-card .card-image { aspect-ratio: 1; background: var(--bg); position: relative; overflow: hidden; }
+        .story-card .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .story-card .card-image .placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            gap: 0.5rem;
+            width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); gap: 0.5rem;
         }
-        .story-card .card-image .placeholder svg {
-            width: 48px;
-            height: 48px;
-            opacity: 0.3;
-        }
-        .story-card .card-body {
-            padding: 1rem;
-        }
-        .story-card .card-chapter {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.3rem;
-        }
-        .story-card h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.3rem;
-        }
-        .story-card .card-setting {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-        .story-card .card-text {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .generate-badge {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background: var(--warning);
-            color: var(--bg);
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-        }
-        .generated-badge {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background: var(--success);
-            color: var(--bg);
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-        }
+        .story-card .card-image .placeholder svg { width: 48px; height: 48px; opacity: 0.3; }
+        .story-card .card-body { padding: 1rem; }
+        .story-card .card-chapter { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+        .story-card h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .story-card .card-setting { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .story-card .card-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .generate-badge { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--warning); color: var(--bg); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; }
+        .generated-badge { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--success); color: var(--bg); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; }
+        .generating-badge { position: absolute; top: 0.75rem; right: 0.75rem; background: var(--accent); color: var(--bg); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
         /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal-content {
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 2rem; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--bg-elevated); border-radius: var(--radius); max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--bg-card); box-shadow: var(--shadow); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--bg-card); }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s; }
+        .modal-close:hover { background: var(--bg-card); color: var(--text); }
+        .modal-image { width: 100%; aspect-ratio: 1; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+        .modal-image img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-body { padding: 1.5rem; }
+        .modal-body .modal-story { font-size: 0.95rem; line-height: 1.7; color: var(--text); margin-bottom: 1rem; }
+        .modal-body .modal-prompt-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 0.3rem; }
+        .modal-body .modal-prompt { font-size: 0.85rem; color: var(--text-muted); font-style: italic; border-left: 3px solid var(--accent); padding-left: 0.75rem; }
+
+        /* Footer */
+        footer {
             background: var(--bg-elevated);
-            border-radius: var(--radius);
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid var(--bg-card);
-            box-shadow: var(--shadow);
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--bg-card);
-        }
-        .modal-close {
-            background: none;
-            border: none;
+            border-top: 1px solid var(--bg-card);
+            padding: 1.5rem 2rem;
+            text-align: center;
             color: var(--text-muted);
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s;
-        }
-        .modal-close:hover {
-            background: var(--bg-card);
-            color: var(--text);
-        }
-        .modal-image {
-            width: 100%;
-            aspect-ratio: 1;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .modal-body {
-            padding: 1.5rem;
-        }
-        .modal-body .modal-story {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            color: var(--text);
-            margin-bottom: 1rem;
-        }
-        .modal-body .modal-prompt-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--accent);
-            margin-bottom: 0.3rem;
-        }
-        .modal-body .modal-prompt {
             font-size: 0.85rem;
-            color: var(--text-muted);
-            font-style: italic;
-            border-left: 3px solid var(--accent);
-            padding-left: 0.75rem;
         }
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        footer a:hover { color: var(--text); }
+        footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+        footer .footer-links a {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        footer svg { width: 16px; height: 16px; }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -519,7 +341,7 @@
             .carousel-image-wrapper { max-width: 100%; }
             .storyboard-container.active { grid-template-columns: 1fr; }
             .chapter-info { padding: 1rem; }
-            .generate-row input { min-width: 100%; }
+            .header-actions { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -529,9 +351,15 @@
             <div class="logo">The Claude Code Certificate</div>
             <div class="subtitle">AI-Assisted Storyboard Generator &middot; 9 Chapters</div>
         </div>
-        <div class="view-toggle">
-            <button id="btn-carousel" class="active" onclick="showView('carousel')">Carousel</button>
-            <button id="btn-storyboard" onclick="showView('storyboard')">Storyboard</button>
+        <div class="header-actions">
+            <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/data/story.json" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Story
+            </a>
+            <div class="view-toggle">
+                <button id="btn-carousel" class="active" onclick="showView('carousel')">Carousel</button>
+                <button id="btn-storyboard" onclick="showView('storyboard')">Storyboard</button>
+            </div>
         </div>
     </header>
 
@@ -540,25 +368,14 @@
         <div class="generate-panel">
             <h3>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Generate from Browser
+                Generate Images
             </h3>
             <div class="generate-row">
-                <input type="password" id="apiKeyInput" placeholder="RunPod API Key (rpa_...)">
-                <label><input type="checkbox" id="showKey"> Show key</label>
-                <button id="runBtn" onclick="runGeneration()">Run Chapter 1</button>
-                <button id="pollBtn" onclick="resumePolling()" style="display:none;background:var(--bg-card);color:var(--text)">Resume Polling</button>
+                <button id="runAllBtn" onclick="runBatch()">Generate All Chapters</button>
+                <button id="runOneBtn" onclick="runSingle()">Generate Current Chapter</button>
+                <button id="pollBtn" class="secondary" onclick="resumePolling()" style="display:none">Resume Polling</button>
             </div>
             <div id="statusBar" class="status-bar"></div>
-            <div id="fallbackBox" class="fallback-box">
-                <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem">
-                    Direct API call blocked (likely CORS). Run this command locally instead:
-                </div>
-                <pre id="curlCmd"></pre>
-                <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">
-                    Or use the Python test script:
-                </div>
-                <pre>python3 scripts/test_generation.py</pre>
-            </div>
         </div>
 
         <!-- Carousel View -->
@@ -570,7 +387,7 @@
                 <div class="carousel-image-wrapper" id="carouselImage">
                     <div class="placeholder">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                        <p>Image will appear here after generation</p>
+                        <p>Loading story...</p>
                     </div>
                 </div>
                 <button class="carousel-btn" id="nextBtn" onclick="nextChapter()" aria-label="Next">
@@ -579,9 +396,9 @@
             </div>
             <div class="chapter-info" id="chapterInfo">
                 <span class="chapter-num">Chapter 1</span>
-                <h2 id="infoTitle">The Discovery</h2>
-                <div class="setting" id="infoSetting">Berlin coffee shop, afternoon</div>
-                <p class="story-text" id="infoText">Loading...</p>
+                <h2 id="infoTitle">Loading...</h2>
+                <div class="setting" id="infoSetting">...</div>
+                <p class="story-text" id="infoText">...</p>
                 <div>
                     <div class="prompt-label">Image Prompt</div>
                     <div class="prompt" id="infoPrompt">...</div>
@@ -611,27 +428,55 @@
         </div>
     </div>
 
-    <script>
-        const ENDPOINT = 'https://api.runpod.ai/v2/b6cpv4fbec236e';
-        const chapters = [
-            {"num":1,"title":"The Discovery","setting":"Berlin coffee shop, afternoon","text":"Alex had been stuck on the same bug for three hours. His coffee had gone cold, and the Berlin rain tapped against the café window. A Slack message from his friend lit up his phone: 'Have you tried Claude Code? It changed everything for me.' Skeptical but desperate, Alex opened his terminal and typed the install command. Within minutes, a soft blue interface appeared, waiting patiently for his first natural-language command.","prompt":"A young developer sitting in a cozy Berlin coffee shop with rain on the windows, laptop open showing a terminal with a glowing blue AI interface, warm ambient lighting mixing with cool screen light, cinematic, highly detailed","file":"txt2img_ch01_the_discovery.png"},
-            {"num":2,"title":"First Command","setting":"Alex's apartment, evening","text":"'Refactor the authentication module to use JWT tokens,' Alex typed, half-expecting silence. Instead, Claude analyzed the entire codebase, highlighted the vulnerable sections, and produced a clean diff. Alex watched in awe as the AI explained each change, line by line, like a patient senior engineer pair-programming at 2 AM. He applied the changes, ran the tests, and for the first time in weeks, everything passed on the first try.","prompt":"A developer at a desk late at night, laptop screen showing split view of code diff and explanatory comments, warm desk lamp illuminating his focused face, the room dark except for the screen glow, sense of breakthrough and wonder, cinematic","file":"txt2img_ch02_first_command.png"},
-            {"num":3,"title":"The Real Project","setting":"Alex's home office, weekend","text":"Emboldened by his first success, Alex decided to build something real—a task management API he had been procrastinating on for months. 'Generate a FastAPI project with SQLModel, async CRUD endpoints, and comprehensive tests,' he commanded. Claude scaffolded the entire architecture, set up Docker files, and even wrote the README. Alex found himself in a flow state he hadn't experienced since his early coding days, guided by an invisible hand that never judged, never tired, and always knew the next step.","prompt":"A bright home office on a weekend morning, developer leaning back in his chair looking at a complex project structure on a large monitor, multiple terminal windows showing FastAPI and Docker outputs, plants and natural light, productive and focused atmosphere, highly detailed","file":"txt2img_ch03_the_real_project.png"},
-            {"num":4,"title":"The Bug Hunt","setting":"Alex's apartment, 3 AM","text":"Production was down. The logs were a cryptic mess of stack traces. Alex's heart pounded as he pasted the error into Claude. 'Analyze these logs and trace the root cause,' he typed, voice tight with stress. Claude methodically filtered the noise, identified the race condition in the async handler, and pointed to the exact line where the connection pool was being exhausted. 'Fix it by adding a semaphore here,' Claude suggested, complete with a patch. Alex deployed at 3:47 AM. The monitors went green. He exhaled for what felt like the first time in hours.","prompt":"Tense late-night debugging scene, developer leaning close to a monitor showing complex log output with highlighted error lines, dark room lit only by multiple screens, sweat on his brow, dramatic tension, the moment before a breakthrough, cinematic lighting","file":"txt2img_ch04_the_bug_hunt.png"},
-            {"num":5,"title":"The Refactor","setting":"Alex's apartment, Sunday afternoon","text":"Looking at the codebase he had built with Claude, Alex realized it worked but was messy—tight coupling, duplicated logic, no clear separation of concerns. 'Suggest an architecture refactor following clean hexagonal principles,' he asked. Claude produced a detailed plan: domain models in the center, ports and adapters on the edges, a clear dependency direction. Over the next four hours, they transformed the tangled web into something elegant. Alex began to see patterns he had only read about in books, now made concrete through collaborative execution.","prompt":"A developer working at a clean desk with diagrams and architecture sketches on a second monitor, laptop showing beautifully organized code with clear module boundaries, bright afternoon sunlight, sense of clarity and order emerging from chaos, highly detailed","file":"txt2img_ch05_the_refactor.png"},
-            {"num":6,"title":"The Test Suite","setting":"Alex's apartment, Tuesday evening","text":"'I want 90% coverage with meaningful tests, not just line-hitting,' Alex declared. Claude generated property-based tests, edge-case scenarios, and integration tests with mocked external services. It explained why each test mattered, what failure mode it caught, and how to read the coverage reports. As Alex watched the test count climb from 12 to 147, he felt a new confidence. His code wasn't just functional anymore—it was defensible, maintainable, professional.","prompt":"A developer watching a test suite run on a large monitor, green checkmarks cascading down the screen, celebratory warm lighting, organized desk with test documentation visible, sense of accomplishment and professionalism, cinematic","file":"txt2img_ch06_the_test_suite.png"},
-            {"num":7,"title":"Code Review","setting":"Alex's apartment, Thursday morning","text":"Before submitting to the course, Alex ran his project through Claude one last time. 'Perform a senior-engineer code review. Be critical.' Claude didn't hold back: the error handling was shallow, the pagination was missing, and the naming conventions were inconsistent. It suggested specific renames, pointed out where exceptions would leak, and recommended a cursor-based pagination strategy. Alex fixed every issue, not because he had to, but because Claude made the 'why' so clear. When he finally pushed, the commit message read: 'Ready for review.'","prompt":"Developer at a standing desk reviewing code with annotations and review comments visible on screen, morning light streaming through blinds creating dramatic stripes, focused and critical analysis, professional atmosphere, highly detailed","file":"txt2img_ch07_code_review.png"},
-            {"num":8,"title":"The Documentation","setting":"Alex's apartment, Friday afternoon","text":"The last requirement was documentation. 'Generate API docs, deployment guide, and a getting-started README,' Alex requested. Claude produced a README that explained the project architecture, a CONTRIBUTING.md with setup instructions, and inline API documentation that actually made sense. It even suggested a GitHub Actions workflow for CI/CD. As Alex read through the final docs, he realized he had not just built a project—he had built a product, something another developer could pick up and understand without ever meeting him.","prompt":"A developer leaning back reading a beautifully formatted README on a monitor, the desk organized with notebooks and a coffee cup, soft Friday afternoon light, sense of completion and polish, warm and satisfying atmosphere, cinematic","file":"txt2img_ch08_the_documentation.png"},
-            {"num":9,"title":"The Certificate","setting":"Online course platform, Monday morning","text":"Alex submitted his final project on Sunday night. Monday morning, an email arrived: 'Congratulations, you have successfully completed the Claude Code Mastery Certification.' Attached was a digital certificate with his name, the completion date, and a blockchain-verified credential ID. He stared at it for a long moment, then opened his terminal. 'Thank you,' he typed to Claude, though he knew it was just a machine. 'What's next?' The cursor blinked, waiting. And for the first time, Alex felt not just like a coder, but like a craftsman with a powerful new tool in his belt.","prompt":"A developer sitting at his desk looking at a certificate on screen with a proud smile, the certificate framed beautifully with his name and completion details, terminal window visible in background with a friendly AI prompt, bright optimistic morning light, sense of achievement and new beginning, highly detailed, cinematic","file":"txt2img_ch09_the_certificate.png"}
-        ];
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                GitHub Repository
+            </a>
+            <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/data/story.json" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Story JSON
+            </a>
+            <a href="https://rifaterdemsahin.github.io/previz-ai-asisted-storyboard/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Live Demo
+            </a>
+        </div>
+        <div>Built with RunPod Serverless &middot; Stable Diffusion XL &middot; FastAPI</div>
+    </footer>
 
+    <script>
+        const API_BASE = window.location.origin;
+        let chapters = [];
         let currentChapter = 0;
-        const imageBase = 'output/generated/';
+        let activeJobs = [];
+
+        // Load story from backend
+        async function loadStory() {
+            try {
+                const resp = await fetch(`${API_BASE}/story`);
+                const data = await resp.json();
+                chapters = data.chapters.map((ch, i) => ({
+                    num: ch.chapter || i + 1,
+                    title: ch.title,
+                    setting: ch.setting,
+                    text: ch.text,
+                    prompt: ch.image_prompt,
+                    file: `txt2img_ch${String(i + 1).padStart(2, '0')}_${ch.title.toLowerCase().replace(/\s+/g, '_').replace(/'/g, '')}.png`
+                }));
+                renderCarousel();
+                renderStoryboard();
+            } catch (err) {
+                console.error('Failed to load story:', err);
+                document.getElementById('infoText').textContent = 'Failed to load story.json. Ensure the backend is running.';
+            }
+        }
 
         // Cookie helpers
         function setCookie(name, value, days=7) {
             const d = new Date();
-            d.setTime(d.getTime() + days*24*60*60*1000);
+            d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
             document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
         }
         function getCookie(name) {
@@ -640,7 +485,6 @@
         }
         function eraseCookie(name) { setCookie(name, '', -1); }
 
-        // UI helpers
         function setStatus(msg, type='info') {
             const bar = document.getElementById('statusBar');
             bar.className = 'status-bar active ' + type;
@@ -649,127 +493,119 @@
         function clearStatus() {
             document.getElementById('statusBar').className = 'status-bar';
         }
-        function showFallback(cmd) {
-            document.getElementById('curlCmd').textContent = cmd;
-            document.getElementById('fallbackBox').classList.add('active');
-        }
-        function hideFallback() {
-            document.getElementById('fallbackBox').classList.remove('active');
-        }
 
-        // Toggle key visibility
-        document.getElementById('showKey').addEventListener('change', (e) => {
-            document.getElementById('apiKeyInput').type = e.target.checked ? 'text' : 'password';
-        });
+        // Generation
+        async function runBatch() {
+            document.getElementById('runAllBtn').disabled = true;
+            document.getElementById('runOneBtn').disabled = true;
+            setStatus('Starting batch generation for all chapters...', 'info');
 
-        // Load saved key
-        const savedKey = getCookie('runpod_key');
-        if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
-
-        async function runGeneration() {
-            const key = document.getElementById('apiKeyInput').value.trim();
-            if (!key) { setStatus('Please enter your RunPod API key.', 'error'); return; }
-            if (!key.startsWith('rpa_')) { setStatus('Key should start with rpa_', 'warning'); }
-
-            setCookie('runpod_key', key);
-            hideFallback();
-            document.getElementById('runBtn').disabled = true;
-            setStatus('Submitting to RunPod...', 'info');
-
-            const ch = chapters[0];
-            const payload = {
-                input: {
-                    prompt: ch.prompt,
-                    negative_prompt: "blurry, very low quality, deformed, ugly, text, watermark, signature, extra limbs, distorted face, bad anatomy, duplicate, mutation",
-                    height: 1024, width: 1024,
-                    num_inference_steps: 40, refiner_inference_steps: 50,
-                    guidance_scale: 10.0, strength: 0.75, high_noise_frac: 0.7,
-                    seed: -1, scheduler: "K_EULER", num_images: 1,
-                    image_url: null
-                }
-            };
-
-            try {
-                const resp = await fetch(`${ENDPOINT}/run`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-                    body: JSON.stringify(payload)
-                });
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const data = await resp.json();
-                const jobId = data.id;
-                if (!jobId) throw new Error('No job ID in response');
-
-                setCookie('runpod_job', jobId);
-                setStatus(`Job <code>${jobId}</code> queued. Polling...`, 'info');
-                document.getElementById('pollBtn').style.display = 'inline-block';
-                pollJob(jobId, key);
-            } catch (err) {
-                const curl = `curl -X POST ${ENDPOINT}/run \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer ${key}' \\\n  -d '${JSON.stringify(payload).replace(/'/g, "'\\''")}'`;
-                showFallback(curl);
-                setStatus(`Browser blocked the request (${err.message}). Use the command below or run the Python script.`, 'error');
-                document.getElementById('runBtn').disabled = false;
+            for (let i = 0; i < chapters.length; i++) {
+                await generateChapter(i);
+                await new Promise(r => setTimeout(r, 2000));
             }
         }
 
-        async function pollJob(jobId, key) {
+        async function runSingle() {
+            document.getElementById('runAllBtn').disabled = true;
+            document.getElementById('runOneBtn').disabled = true;
+            await generateChapter(currentChapter);
+        }
+
+        async function generateChapter(index) {
+            const ch = chapters[index];
+            try {
+                setStatus(`Chapter ${ch.num}: Submitting "${ch.title}"...`, 'info');
+                const resp = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: ch.prompt, filename: ch.file })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.detail || 'Generate failed');
+
+                activeJobs.push({ jobId: data.job_id, filename: ch.file, chapter: index });
+                setCookie('active_jobs', JSON.stringify(activeJobs));
+                setStatus(`Chapter ${ch.num}: Job <code>${data.job_id}</code> queued.`, 'info');
+
+                pollJob(data.job_id, ch.file, index);
+            } catch (err) {
+                setStatus(`Chapter ${ch.num} error: ${err.message}`, 'error');
+                document.getElementById('runAllBtn').disabled = false;
+                document.getElementById('runOneBtn').disabled = false;
+            }
+        }
+
+        function pollJob(jobId, filename, chapterIndex) {
             const check = async () => {
                 try {
-                    const resp = await fetch(`${ENDPOINT}/status/${jobId}`, {
-                        headers: { 'Authorization': `Bearer ${key}` }
-                    });
-                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    const resp = await fetch(`${API_BASE}/status/${jobId}`);
                     const data = await resp.json();
                     const state = data.status || 'UNKNOWN';
 
                     if (state === 'COMPLETED') {
-                        setStatus(`Job <code>${jobId}</code> <strong>completed</strong>! Refresh to see the image.`, 'success');
-                        document.getElementById('runBtn').disabled = false;
-                        eraseCookie('runpod_job');
+                        setStatus(`Chapter ${chapterIndex + 1}: <strong>${filename}</strong> completed and saved!`, 'success');
+                        removeJob(jobId);
+                        refreshImages();
+                        document.getElementById('runAllBtn').disabled = false;
+                        document.getElementById('runOneBtn').disabled = false;
                         return;
                     }
-                    if (['FAILED','CANCELLED','TIMED_OUT'].includes(state)) {
-                        setStatus(`Job <code>${jobId}</code> failed: <strong>${state}</strong>`, 'error');
-                        document.getElementById('runBtn').disabled = false;
-                        eraseCookie('runpod_job');
+                    if (['FAILED', 'CANCELLED', 'TIMED_OUT'].includes(state)) {
+                        setStatus(`Chapter ${chapterIndex + 1} failed: <strong>${state}</strong>`, 'error');
+                        removeJob(jobId);
+                        document.getElementById('runAllBtn').disabled = false;
+                        document.getElementById('runOneBtn').disabled = false;
                         return;
                     }
-                    setStatus(`Job <code>${jobId}</code> status: <strong>${state}</strong> (polling every 10s)`, 'info');
+                    setStatus(`Chapter ${chapterIndex + 1}: <code>${jobId}</code> status <strong>${state}</strong> (polling...)`, 'info');
                     setTimeout(check, 10000);
                 } catch (err) {
-                    setStatus(`Polling error: ${err.message}. Click <strong>Resume Polling</strong> to retry.`, 'warning');
-                    document.getElementById('runBtn').disabled = false;
+                    setStatus(`Polling error: ${err.message}. Click Resume to retry.`, 'warning');
+                    document.getElementById('pollBtn').style.display = 'inline-block';
+                    document.getElementById('runAllBtn').disabled = false;
+                    document.getElementById('runOneBtn').disabled = false;
                 }
             };
             check();
         }
 
+        function removeJob(jobId) {
+            activeJobs = activeJobs.filter(j => j.jobId !== jobId);
+            setCookie('active_jobs', JSON.stringify(activeJobs));
+        }
+
         function resumePolling() {
-            const jobId = getCookie('runpod_job');
-            const key = getCookie('runpod_key');
-            if (!jobId || !key) { setStatus('No saved job to resume. Enter your key and click Run.', 'warning'); return; }
-            document.getElementById('runBtn').disabled = true;
-            pollJob(jobId, key);
+            const saved = getCookie('active_jobs');
+            if (!saved) { setStatus('No saved jobs to resume.', 'warning'); return; }
+            try {
+                activeJobs = JSON.parse(saved);
+                activeJobs.forEach(j => pollJob(j.jobId, j.filename, j.chapter));
+                document.getElementById('pollBtn').style.display = 'none';
+            } catch (e) {
+                setStatus('Could not resume jobs.', 'error');
+            }
         }
 
-        // Auto-resume on load
-        const savedJob = getCookie('runpod_job');
-        const savedKey2 = getCookie('runpod_key');
-        if (savedJob && savedKey2) {
-            document.getElementById('pollBtn').style.display = 'inline-block';
-            setStatus(`Found saved job <code>${savedJob}</code>. Click Resume Polling to check status.`, 'info');
+        function refreshImages() {
+            renderCarousel();
+            renderStoryboard();
         }
 
-        // Chapter viewer (same as before)
+        // View switching
         function showView(view) {
             document.getElementById('carousel-view').classList.toggle('active', view === 'carousel');
             document.getElementById('storyboard-view').classList.toggle('active', view === 'storyboard');
             document.getElementById('btn-carousel').classList.toggle('active', view === 'carousel');
             document.getElementById('btn-storyboard').classList.toggle('active', view === 'storyboard');
         }
+
+        // Carousel
         function renderCarousel() {
+            if (!chapters.length) return;
             const ch = chapters[currentChapter];
-            const imgPath = imageBase + ch.file;
+            const imgPath = `${API_BASE}/images/${ch.file}`;
+
             const imgWrapper = document.getElementById('carouselImage');
             imgWrapper.innerHTML = '';
             const img = new Image();
@@ -777,15 +613,18 @@
             img.alt = ch.title;
             img.onload = () => { imgWrapper.innerHTML = ''; imgWrapper.appendChild(img); };
             img.onerror = () => {
-                imgWrapper.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>Run <code>python3 src/generators/batch.py</code> to generate this image</p></div>`;
+                imgWrapper.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>Click "Generate" to create this image</p></div>`;
             };
+
             document.getElementById('infoTitle').textContent = ch.title;
             document.getElementById('infoSetting').textContent = ch.setting;
             document.getElementById('infoText').textContent = ch.text;
             document.getElementById('infoPrompt').textContent = ch.prompt;
             document.querySelector('.chapter-num').textContent = `Chapter ${ch.num}`;
+
             document.getElementById('prevBtn').disabled = currentChapter === 0;
             document.getElementById('nextBtn').disabled = currentChapter === chapters.length - 1;
+
             const dots = document.getElementById('carouselDots');
             dots.innerHTML = '';
             chapters.forEach((_, i) => {
@@ -797,16 +636,20 @@
         }
         function prevChapter() { if (currentChapter > 0) { currentChapter--; renderCarousel(); } }
         function nextChapter() { if (currentChapter < chapters.length - 1) { currentChapter++; renderCarousel(); } }
+
+        // Storyboard
         function renderStoryboard() {
             const container = document.getElementById('storyboard-view');
             container.innerHTML = '';
             chapters.forEach((ch, i) => {
-                const imgPath = imageBase + ch.file;
+                const imgPath = `${API_BASE}/images/${ch.file}`;
                 const card = document.createElement('div');
                 card.className = 'story-card';
                 card.onclick = () => openModal(i);
+
                 const imgDiv = document.createElement('div');
                 imgDiv.className = 'card-image';
+
                 const img = new Image();
                 img.src = imgPath;
                 img.onload = () => {
@@ -824,6 +667,7 @@
                     badge.textContent = 'Generate';
                     imgDiv.appendChild(badge);
                 };
+
                 const body = document.createElement('div');
                 body.className = 'card-body';
                 body.innerHTML = `
@@ -832,19 +676,22 @@
                     <div class="card-setting">${ch.setting}</div>
                     <p class="card-text">${ch.text}</p>
                 `;
+
                 card.appendChild(imgDiv);
                 card.appendChild(body);
                 container.appendChild(card);
             });
         }
+
+        // Modal
         function openModal(index) {
             const ch = chapters[index];
-            const imgPath = imageBase + ch.file;
+            const imgPath = `${API_BASE}/images/${ch.file}`;
             document.getElementById('modalTitle').textContent = `Chapter ${ch.num}: ${ch.title}`;
             document.getElementById('modalSetting').textContent = ch.setting;
-                document.getElementById('modalText').textContent = ch.text;
-                document.getElementById('modalPrompt').textContent = ch.prompt;
+            document.getElementById('modalText').textContent = ch.text;
             document.getElementById('modalPrompt').textContent = ch.prompt;
+
             const imgDiv = document.getElementById('modalImage');
             imgDiv.innerHTML = '';
             const img = new Image();
@@ -863,13 +710,28 @@
                 document.getElementById('modal').classList.remove('active');
             }
         }
+
+        // Keyboard
         document.addEventListener('keydown', (e) => {
             if (!document.getElementById('carousel-view').classList.contains('active')) return;
             if (e.key === 'ArrowLeft') prevChapter();
             if (e.key === 'ArrowRight') nextChapter();
         });
-        renderCarousel();
-        renderStoryboard();
+
+        // Auto-resume
+        const savedJobs = getCookie('active_jobs');
+        if (savedJobs) {
+            try {
+                activeJobs = JSON.parse(savedJobs);
+                if (activeJobs.length) {
+                    document.getElementById('pollBtn').style.display = 'inline-block';
+                    setStatus(`Found ${activeJobs.length} saved job(s). Click Resume Polling.`, 'info');
+                }
+            } catch (e) { eraseCookie('active_jobs'); }
+        }
+
+        // Init
+        loadStory();
     </script>
 </body>
 </html>

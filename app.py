@@ -50,6 +50,10 @@ if AZURE_STORAGE_CONN:
     blob_service = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONN)
 
 
+# Job ID → filename mapping (in-memory for single-machine state)
+_job_filenames: dict[str, str] = {}
+
+
 def runpod_submit(prompt: str) -> dict:
     url = f"https://api.runpod.ai/v2/{RUNPOD_ENDPOINT}/run"
     payload = {

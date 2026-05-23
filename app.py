@@ -302,6 +302,14 @@ def gemini_chat(body: dict) -> dict:
         raise HTTPException(status_code=exc.code, detail=body)
 
 
+@app.get("/{page}.html", response_class=HTMLResponse)
+def read_page(page: str):
+    page_path = BASE_DIR / f"{page}.html"
+    if page_path.exists():
+        return page_path.read_text(encoding="utf-8")
+    raise HTTPException(status_code=404, detail=f"{page}.html not found")
+
+
 @app.get("/health")
 def health():
     return {

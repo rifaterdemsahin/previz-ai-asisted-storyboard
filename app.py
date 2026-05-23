@@ -6,7 +6,9 @@ Endpoints:
   GET  /story               → story.json
   POST /generate            → submit generation job (server-side API key)
   GET  /status/{job_id}     → poll job status
-  GET  /images/{filename}   → serve generated PNG
+  GET  /images/{filename}   → redirect to Azure Blob Storage
+  POST /gemini              → call Gemini API for chat/flash responses
+  GET  /health              → health check
 """
 
 import json
@@ -18,9 +20,10 @@ from pathlib import Path
 from urllib.error import HTTPError
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+
+from azure.storage.blob import BlobServiceClient, ContentSettings
 
 app = FastAPI(title="AI Storyboard Generator")
 
@@ -32,12 +35,19 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).resolve().parent
-OUTPUT_DIR = BASE_DIR / "output" / "generated"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 DATA_DIR = BASE_DIR / "data"
 
 RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY", "")
 RUNPOD_ENDPOINT = os.getenv("RUNPOD_ENDPOINT_ID", "b6cpv4fbec236e")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+AZURE_STORAGE_CONN = os.getenv("AZURE_STORAGE_CONNECTION_STRING", "")
+AZURE_STORAGE_ACCOUNT = os.getenv("AZURE_STORAGE_ACCOUNT", "dpstoryboardsa")
+AZURE_CONTAINER = os.getenv("AZURE_CONTAINER", "images")
+
+# Init Azure Blob client
+blob_service = None
+if AZURE_STORAGE_CONN:
+    blob_service = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONN)
 
 
 def runpod_submit(prompt: str) -> dict:
@@ -87,7 +97,10 @@ def runpod_poll(job_id: str) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
-def extract_and_save(data: dict, filename: str) -> str:
+def save_image_to_azure(data: dict, filename: str) -> str:
+    if not blob_service:
+        raise RuntimeError("Azure Blob Storage not configured")
+
     candidates = []
     output = data.get("output", {})
     if isinstance(output, dict):
@@ -101,9 +114,10 @@ def extract_and_save(data: dict, filename: str) -> str:
         raise RuntimeError("No image data found.")
 
     image_data = base64.b64decode(candidates[0].split(",", 1)[1])
-    out_path = OUTPUT_DIR / filename
-    out_path.write_bytes(image_data)
-    return str(out_path)
+    blob_client = blob_service.get_blob_client(container=AZURE_CONTAINER, blob=filename)
+    blob_client.upload_blob(image_data, overwrite=True, content_settings=ContentSettings(content_type="image/png"))
+
+    return f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_CONTAINER}/{filename}"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -146,11 +160,11 @@ def status(job_id: str) -> dict:
     data = runpod_poll(job_id)
     state = data.get("status", "UNKNOWN")
 
-    # Auto-save image if completed
     if state == "COMPLETED":
         filename = data.get("input", {}).get("filename", f"{job_id}.png")
         try:
-            extract_and_save(data, filename)
+            url = save_image_to_azure(data, filename)
+            data["saved_url"] = url
             data["saved_file"] = filename
         except Exception as exc:
             data["save_error"] = str(exc)
@@ -160,12 +174,48 @@ def status(job_id: str) -> dict:
 
 @app.get("/images/{filename}")
 def serve_image(filename: str):
-    img_path = OUTPUT_DIR / filename
-    if not img_path.exists():
-        raise HTTPException(status_code=404, detail="Image not found")
-    return FileResponse(img_path, media_type="image/png")
+    """Redirect to Azure Blob Storage public URL."""
+    if not AZURE_STORAGE_ACCOUNT:
+        raise HTTPException(status_code=500, detail="Azure Storage not configured")
+    url = f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_CONTAINER}/{filename}"
+    return RedirectResponse(url=url)
+
+
+@app.post("/gemini")
+def gemini_chat(body: dict) -> dict:
+    """Proxy to Gemini API for chat/flash responses."""
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+
+    model = body.get("model", "gemini-2.0-flash")
+    contents = body.get("contents", [])
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+    payload = {
+        "contents": contents,
+        "generationConfig": body.get("generationConfig", {"temperature": 0.7, "maxOutputTokens": 2048}),
+    }
+
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as exc:
+        body = exc.read().decode("utf-8")
+        raise HTTPException(status_code=exc.code, detail=body)
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "endpoint": RUNPOD_ENDPOINT}
+    return {
+        "status": "ok",
+        "endpoint": RUNPOD_ENDPOINT,
+        "storage": AZURE_STORAGE_ACCOUNT if blob_service else "not configured",
+        "gemini": "configured" if GEMINI_API_KEY else "not configured",
+    }

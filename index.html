@@ -348,8 +348,8 @@
 <body>
     <header>
         <div>
-            <div class="logo">The Claude Code Certificate</div>
-            <div class="subtitle">AI-Assisted Storyboard Generator &middot; 9 Chapters</div>
+            <div class="logo">AI-Assisted Engineer</div>
+            <div class="subtitle">Rifat's Claude Certification Journey &middot; 9 Chapters</div>
         </div>
         <div class="header-actions">
             <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/data/story.json" target="_blank" rel="noopener">
@@ -438,9 +438,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Edit Story JSON
             </a>
-            <a href="https://rifaterdemsahin.github.io/previz-ai-asisted-storyboard/" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                Live Demo
+            <a href="https://previz-ai-storyboard.fly.dev/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Fly.io App
             </a>
         </div>
         <div>Built with RunPod Serverless &middot; Stable Diffusion XL &middot; FastAPI</div>
@@ -448,6 +448,7 @@
 
     <script>
         const API_BASE = window.location.origin;
+        const AZURE_STORAGE_BASE = 'https://dpsbimages.blob.core.windows.net/images';
         let chapters = [];
         let currentChapter = 0;
         let activeJobs = [];
@@ -604,7 +605,7 @@
         function renderCarousel() {
             if (!chapters.length) return;
             const ch = chapters[currentChapter];
-            const imgPath = `${API_BASE}/images/${ch.file}`;
+            const imgPath = `${AZURE_STORAGE_BASE}/${ch.file}`;
 
             const imgWrapper = document.getElementById('carouselImage');
             imgWrapper.innerHTML = '';
@@ -642,7 +643,7 @@
             const container = document.getElementById('storyboard-view');
             container.innerHTML = '';
             chapters.forEach((ch, i) => {
-                const imgPath = `${API_BASE}/images/${ch.file}`;
+                const imgPath = `${AZURE_STORAGE_BASE}/${ch.file}`;
                 const card = document.createElement('div');
                 card.className = 'story-card';
                 card.onclick = () => openModal(i);

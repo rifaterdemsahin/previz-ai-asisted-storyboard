@@ -5,6 +5,9 @@ primary_region = "lhr"
 
 [env]
   PORT = "8080"
+  AZURE_STORAGE_ACCOUNT = "dpsbimages"
+  AZURE_CONTAINER = "images"
+  RUNPOD_ENDPOINT_ID = "b6cpv4fbec236e"
 
 [http_service]
   internal_port = 8080
@@ -12,7 +15,3 @@ primary_region = "lhr"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
-
-[[mounts]]
-  source = "storyboard_data"
-  destination = "/app/output/generated"

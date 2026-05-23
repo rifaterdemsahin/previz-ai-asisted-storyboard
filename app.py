@@ -3,10 +3,11 @@
 
 Endpoints:
   GET  /                    → index.html
-  GET  /story               → story.json
+  GET  /story               → story.json (from Azure or local)
+  POST /save-story          → save story.json to Azure per-story container
   POST /generate            → submit generation job (server-side API key)
   GET  /status/{job_id}     → poll job status
-  GET  /images/{filename}   → redirect to Azure Blob Storage
+  GET  /images/{story}/{filename} → redirect to Azure Blob Storage
   POST /gemini              → call Gemini API for chat/flash responses
   GET  /health              → health check
 """
@@ -15,6 +16,7 @@ import json
 import os
 import time
 import base64
+import re
 import urllib.request
 from pathlib import Path
 from urllib.error import HTTPError
@@ -52,6 +54,26 @@ if AZURE_STORAGE_CONN:
 
 # Job ID → filename mapping (in-memory for single-machine state)
 _job_filenames: dict[str, str] = {}
+# Current active story container
+_current_story_container: str = "story-rifat"
+
+
+def _ensure_container(container: str) -> None:
+    """Create container if it doesn't exist."""
+    if not blob_service:
+        return
+    try:
+        blob_service.create_container(container, public_access="blob")
+    except Exception:
+        pass  # Already exists
+
+
+def _get_story_container(story_id: str | None = None) -> str:
+    """Return container name for a story."""
+    global _current_story_container
+    if story_id:
+        _current_story_container = story_id
+    return _current_story_container
 
 
 def runpod_submit(prompt: str) -> dict:
@@ -101,9 +123,12 @@ def runpod_poll(job_id: str) -> dict:
         return json.loads(resp.read().decode("utf-8"))
 
 
-def save_image_to_azure(data: dict, filename: str) -> str:
+def save_image_to_azure(data: dict, filename: str, container: str | None = None) -> str:
     if not blob_service:
         raise RuntimeError("Azure Blob Storage not configured")
+
+    container = container or _get_story_container()
+    _ensure_container(container)
 
     candidates = []
     output = data.get("output", {})
@@ -118,10 +143,10 @@ def save_image_to_azure(data: dict, filename: str) -> str:
         raise RuntimeError("No image data found.")
 
     image_data = base64.b64decode(candidates[0].split(",", 1)[1])
-    blob_client = blob_service.get_blob_client(container=AZURE_CONTAINER, blob=filename)
+    blob_client = blob_service.get_blob_client(container=container, blob=filename)
     blob_client.upload_blob(image_data, overwrite=True, content_settings=ContentSettings(content_type="image/png"))
 
-    return f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_CONTAINER}/{filename}"
+    return f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{container}/{filename}"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -133,11 +158,66 @@ def read_index():
 
 
 @app.get("/story")
-def read_story():
+def read_story(story: str | None = None):
+    """Read story.json from Azure if available, otherwise local."""
+    container = _get_story_container(story)
+
+    # Try Azure first
+    if blob_service:
+        try:
+            blob_client = blob_service.get_blob_client(container=container, blob="story.json")
+            data = json.loads(blob_client.download_blob().readall().decode("utf-8"))
+            data["_source"] = "azure"
+            data["_container"] = container
+            return JSONResponse(content=data)
+        except Exception:
+            pass  # Fall through to local
+
+    # Fallback to local
     story_path = DATA_DIR / "story.json"
     if not story_path.exists():
         raise HTTPException(status_code=404, detail="story.json not found")
-    return JSONResponse(content=json.loads(story_path.read_text(encoding="utf-8")))
+    local_data = json.loads(story_path.read_text(encoding="utf-8"))
+    local_data["_source"] = "local"
+    local_data["_container"] = container
+    return JSONResponse(content=local_data)
+
+
+@app.post("/save-story")
+def save_story(body: dict) -> dict:
+    """Save story.json to Azure per-story container."""
+    if not blob_service:
+        raise HTTPException(status_code=500, detail="Azure Blob Storage not configured")
+
+    story_id = body.get("story_id", "story-rifat")
+    story_data = body.get("story", {})
+
+    container = _get_story_container(story_id)
+    _ensure_container(container)
+
+    blob_client = blob_service.get_blob_client(container=container, blob="story.json")
+    blob_client.upload_blob(
+        json.dumps(story_data, indent=2, ensure_ascii=False).encode("utf-8"),
+        overwrite=True,
+        content_settings=ContentSettings(content_type="application/json"),
+    )
+
+    return {"saved": True, "container": container, "blob": "story.json"}
+
+
+@app.get("/stories")
+def list_stories() -> dict:
+    """List all story containers in Azure."""
+    if not blob_service:
+        return {"stories": []}
+
+    stories = []
+    for container in blob_service.list_containers():
+        name = container.name
+        if name.startswith("story-"):
+            stories.append(name)
+
+    return {"stories": sorted(stories)}
 
 
 @app.post("/generate")
@@ -147,11 +227,17 @@ def generate(body: dict) -> dict:
 
     prompt = body.get("prompt", "")
     filename = body.get("filename", "generated.png")
+    story_id = body.get("story_id", "story-rifat")
+
+    # Set current story context
+    _get_story_container(story_id)
 
     result = runpod_submit(prompt)
     job_id = result.get("id")
     if not job_id:
         raise HTTPException(status_code=500, detail="No job ID from RunPod")
+
+    _job_filenames[job_id] = filename
 
     return {"job_id": job_id, "filename": filename, "status": result.get("status", "UNKNOWN")}
 
@@ -165,23 +251,24 @@ def status(job_id: str) -> dict:
     state = data.get("status", "UNKNOWN")
 
     if state == "COMPLETED":
-        filename = data.get("input", {}).get("filename", f"{job_id}.png")
+        filename = _job_filenames.get(job_id, f"{job_id}.png")
         try:
             url = save_image_to_azure(data, filename)
             data["saved_url"] = url
             data["saved_file"] = filename
+            del _job_filenames[job_id]
         except Exception as exc:
             data["save_error"] = str(exc)
 
     return data
 
 
-@app.get("/images/{filename}")
-def serve_image(filename: str):
-    """Redirect to Azure Blob Storage public URL."""
+@app.get("/images/{story}/{filename}")
+def serve_image(story: str, filename: str):
+    """Redirect to Azure Blob Storage per-story container."""
     if not AZURE_STORAGE_ACCOUNT:
         raise HTTPException(status_code=500, detail="Azure Storage not configured")
-    url = f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_CONTAINER}/{filename}"
+    url = f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{story}/{filename}"
     return RedirectResponse(url=url)
 
 

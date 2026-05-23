@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Editor — AI Storyboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0f172a;
+            --bg-elevated: #1e293b;
+            --bg-card: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Shared Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg) 100%);
+            border-bottom: 1px solid var(--bg-card);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        .shared-menu {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .shared-menu a,
+        .shared-menu button {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--bg-card);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: transparent;
+            cursor: pointer;
+        }
+        .shared-menu a:hover,
+        .shared-menu button:hover {
+            color: var(--text);
+            border-color: var(--accent);
+            background: var(--bg);
+        }
+        .shared-menu a.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+        .shared-menu svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Main */
+        main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .action-bar button {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 0.7rem 1.4rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .action-bar button:hover { filter: brightness(1.1); }
+        .action-bar button.secondary {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+        .action-bar button.success {
+            background: var(--success);
+            color: var(--bg);
+        }
+        .status-pill {
+            display: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .status-pill.active { display: inline-block; }
+        .status-pill.info { background: rgba(56,189,248,0.1); border: 1px solid var(--accent); color: var(--accent); }
+        .status-pill.success { background: rgba(34,197,94,0.1); border: 1px solid var(--success); color: var(--success); }
+        .status-pill.error { background: rgba(239,68,68,0.1); border: 1px solid var(--danger); color: var(--danger); }
+
+        /* Story Reader View */
+        .reader-view {
+            background: var(--bg-elevated);
+            border: 1px solid var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+        }
+        .reader-view h1 {
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .reader-view .meta {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--bg-card);
+        }
+        .chapter-block {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--bg-card);
+        }
+        .chapter-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .chapter-block h2 {
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+        .chapter-block .setting {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+        .chapter-block .text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+        }
+        .chapter-block .prompt-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+        .chapter-block .prompt {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+            border-left: 3px solid var(--accent);
+            padding-left: 0.75rem;
+        }
+
+        /* Editor View */
+        .editor-view {
+            display: none;
+        }
+        .editor-view.active {
+            display: block;
+        }
+        .editor-form {
+            background: var(--bg-elevated);
+            border: 1px solid var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+        }
+        .editor-form label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+            margin-top: 1rem;
+        }
+        .editor-form input[type="text"],
+        .editor-form textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--bg-card);
+            color: var(--text);
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        .editor-form input[type="text"]:focus,
+        .editor-form textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .editor-form textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .editor-form .chapter-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .editor-form .chapter-selector button {
+            background: var(--bg);
+            border: 1px solid var(--bg-card);
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .editor-form .chapter-selector button.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+        .editor-form .chapter-selector button:hover:not(.active) {
+            color: var(--text);
+            border-color: var(--accent);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--bg-card);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        footer a:hover { color: var(--text); }
+        footer .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header { padding: 1rem; }
+            main { padding: 1rem; }
+            .reader-view { padding: 1rem; }
+            .editor-form { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <div class="logo">AI-Assisted Engineer</div>
+            <div class="subtitle">Story Editor &middot; Read & Update</div>
+        </div>
+        <nav class="shared-menu">
+            <a href="index.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                Storyboard
+            </a>
+            <a href="story_editor.html" class="active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Story
+            </a>
+            <a href="markdown_render.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Docs
+            </a>
+            <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                GitHub
+            </a>
+            <a href="https://previz-ai-storyboard.fly.dev/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Fly.io
+            </a>
+            <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/data/story.json" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Story
+            </a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <button id="toggleBtn" onclick="toggleView()">Switch to Editor</button>
+            <button class="success" id="saveBtn" onclick="saveStory()" style="display:none">Save to Azure</button>
+            <span id="statusPill" class="status-pill"></span>
+        </div>
+
+        <!-- Reader View -->
+        <div id="readerView" class="reader-view">
+            <h1 id="storyTitle">Loading...</h1>
+            <div class="meta" id="storyMeta"></div>
+            <div id="chaptersContainer"></div>
+        </div>
+
+        <!-- Editor View -->
+        <div id="editorView" class="editor-view">
+            <div class="editor-form">
+                <label>Select Chapter</label>
+                <div class="chapter-selector" id="chapterSelector"></div>
+
+                <label for="editTitle">Title</label>
+                <input type="text" id="editTitle">
+
+                <label for="editSetting">Setting</label>
+                <input type="text" id="editSetting">
+
+                <label for="editText">Story Text</label>
+                <textarea id="editText"></textarea>
+
+                <label for="editPrompt">Image Prompt</label>
+                <textarea id="editPrompt"></textarea>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard">GitHub Repository</a>
+            &middot; <a href="https://previz-ai-storyboard.fly.dev/">Fly.io App</a>
+        </div>
+        <div>Built with RunPod &middot; Azure Blob &middot; FastAPI</div>
+    </footer>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const STORY_ID = 'story-rifat';
+        let storyData = null;
+        let currentEditIndex = 0;
+
+        async function loadStory() {
+            try {
+                const resp = await fetch(`${API_BASE}/story?story=${STORY_ID}`);
+                storyData = await resp.json();
+                renderReader();
+                renderEditor();
+            } catch (err) {
+                document.getElementById('storyTitle').textContent = 'Failed to load story';
+                console.error(err);
+            }
+        }
+
+        function renderReader() {
+            if (!storyData) return;
+            document.getElementById('storyTitle').textContent = storyData.title || 'Untitled Story';
+            document.getElementById('storyMeta').textContent =
+                `${storyData.chapters?.length || 0} chapters &middot; Source: ${storyData._source || 'local'}`;
+
+            const container = document.getElementById('chaptersContainer');
+            container.innerHTML = '';
+
+            (storyData.chapters || []).forEach((ch, i) => {
+                const block = document.createElement('div');
+                block.className = 'chapter-block';
+                block.innerHTML = `
+                    <h2>Chapter ${ch.chapter || i + 1}: ${ch.title}</h2>
+                    <div class="setting">${ch.setting || ''}</div>
+                    <div class="text">${ch.text || ''}</div>
+                    <div class="prompt-label">Image Prompt</div>
+                    <div class="prompt">${ch.image_prompt || ''}</div>
+                `;
+                container.appendChild(block);
+            });
+        }
+
+        function renderEditor() {
+            if (!storyData?.chapters) return;
+            const selector = document.getElementById('chapterSelector');
+            selector.innerHTML = '';
+
+            storyData.chapters.forEach((ch, i) => {
+                const btn = document.createElement('button');
+                btn.textContent = `Ch ${i + 1}`;
+                btn.className = i === 0 ? 'active' : '';
+                btn.onclick = () => selectChapter(i);
+                selector.appendChild(btn);
+            });
+
+            selectChapter(0);
+        }
+
+        function selectChapter(index) {
+            currentEditIndex = index;
+            const ch = storyData.chapters[index];
+
+            document.querySelectorAll('.chapter-selector button').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+
+            document.getElementById('editTitle').value = ch.title || '';
+            document.getElementById('editSetting').value = ch.setting || '';
+            document.getElementById('editText').value = ch.text || '';
+            document.getElementById('editPrompt').value = ch.image_prompt || '';
+        }
+
+        // Update storyData when inputs change
+        ['editTitle', 'editSetting', 'editText', 'editPrompt'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                const ch = storyData.chapters[currentEditIndex];
+                ch.title = document.getElementById('editTitle').value;
+                ch.setting = document.getElementById('editSetting').value;
+                ch.text = document.getElementById('editText').value;
+                ch.image_prompt = document.getElementById('editPrompt').value;
+            });
+        });
+
+        function toggleView() {
+            const reader = document.getElementById('readerView');
+            const editor = document.getElementById('editorView');
+            const btn = document.getElementById('toggleBtn');
+            const saveBtn = document.getElementById('saveBtn');
+
+            if (reader.style.display === 'none') {
+                reader.style.display = 'block';
+                editor.classList.remove('active');
+                btn.textContent = 'Switch to Editor';
+                saveBtn.style.display = 'none';
+                renderReader();
+            } else {
+                reader.style.display = 'none';
+                editor.classList.add('active');
+                btn.textContent = 'Switch to Reader';
+                saveBtn.style.display = 'inline-block';
+            }
+        }
+
+        async function saveStory() {
+            const pill = document.getElementById('statusPill');
+            pill.className = 'status-pill active info';
+            pill.textContent = 'Saving to Azure...';
+
+            try {
+                const resp = await fetch(`${API_BASE}/save-story`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ story_id: STORY_ID, story: storyData })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.detail || 'Save failed');
+
+                pill.className = 'status-pill active success';
+                pill.textContent = `Saved to Azure container: ${data.container}`;
+            } catch (err) {
+                pill.className = 'status-pill active error';
+                pill.textContent = `Save failed: ${err.message}`;
+            }
+        }
+
+        loadStory();
+    </script>
+</body>
+</html>

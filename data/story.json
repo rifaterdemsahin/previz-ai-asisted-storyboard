@@ -3,11 +3,11 @@
   "seed_image_url": null,
   "characters": {
     "alex": {
-      "name": "Alex",
-      "age": 28,
-      "profession": "Software developer",
-      "location": "Berlin, Germany",
-      "appearance": "A focused young developer with short dark hair, wearing casual tech hoodies and glasses, often seen hunched over a laptop in a coffee shop or home office."
+      "name": "Rifat",
+      "age": 46,
+      "profession": "IT Contractor",
+      "location": "Cambridge, UK",
+      "appearance": "A focused senior developer with short dark hair, wearing casual tech hoodies, often seen hunched over a laptop in a coffee shop or home office."
     },
     "claude": {
       "name": "Claude",

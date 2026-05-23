@@ -392,38 +392,10 @@
 
     <main>
         <!-- Demo Banner -->
-        <div id="demoBanner" style="display:none;background:rgba(245,158,11,0.1);border:1px solid var(--warning);border-radius:var(--radius);padding:1rem 1.5rem;margin-bottom:2rem;color:var(--warning);font-size:0.9rem;">
-            <strong>Demo Preview</strong> — This is the static GitHub Pages preview. 
-            <a href="https://previz-ai-storyboard.fly.dev/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline;">Visit the live app on Fly.io</a> 
-            for full image generation, Azure storage, and story editing.
-        </div>
-
-        <!-- Generate Panel -->
-        <div class="generate-panel">
-            <h3>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                Generate Images
-            </h3>
-            <div class="generate-row">
-                <button id="runAllBtn" onclick="runBatch()">Generate All Chapters</button>
-                <button id="runOneBtn" onclick="runSingle()">Generate Current Chapter</button>
-                <button id="pollBtn" class="secondary" onclick="resumePolling()" style="display:none">Resume Polling</button>
-            </div>
-            <div style="margin-top:0.75rem;display:flex;gap:1rem;flex-wrap:wrap;font-size:0.8rem;">
-                <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/src/generators/batch.py" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:none;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:0.3rem"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit batch.py
-                </a>
-                <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/src/generators/single.py" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:none;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:0.3rem"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit single.py
-                </a>
-                <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/scripts/flyio_batch.py" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:none;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:0.3rem"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit flyio_batch.py
-                </a>
-                <a href="https://github.com/rifaterdemsahin/previz-ai-asisted-storyboard/edit/main/app.py" target="_blank" rel="noopener" style="color:var(--text-muted);text-decoration:none;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:0.3rem"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit app.py
-                </a>
-            </div>
-            <div id="statusBar" class="status-bar"></div>
+        <div style="background:rgba(56,189,248,0.1);border:1px solid var(--accent);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;text-align:center;">
+            <h2 style="color:var(--accent);margin-bottom:0.5rem;font-size:1.3rem;">Demo Preview</h2>
+            <p style="color:var(--text-muted);margin-bottom:1rem;">This is the static GitHub Pages preview. The full app with AI image generation runs on Fly.io.</p>
+            <a href="https://previz-ai-storyboard.fly.dev/" target="_blank" rel="noopener" style="display:inline-block;background:var(--accent);color:var(--bg);padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Open Live App on Fly.io</a>
         </div>
 
         <!-- Carousel View -->
@@ -561,104 +533,6 @@
             document.getElementById('statusBar').className = 'status-bar';
         }
 
-        // Generation
-        async function runBatch() {
-            document.getElementById('runAllBtn').disabled = true;
-            document.getElementById('runOneBtn').disabled = true;
-            setStatus('Starting batch generation for all chapters...', 'info');
-
-            for (let i = 0; i < chapters.length; i++) {
-                await generateChapter(i);
-                await new Promise(r => setTimeout(r, 2000));
-            }
-        }
-
-        async function runSingle() {
-            document.getElementById('runAllBtn').disabled = true;
-            document.getElementById('runOneBtn').disabled = true;
-            await generateChapter(currentChapter);
-        }
-
-        async function generateChapter(index) {
-            const ch = chapters[index];
-            try {
-                setStatus(`Chapter ${ch.num}: Submitting "${ch.title}"...`, 'info');
-                const resp = await fetch(`${API_BASE}/generate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: ch.prompt, filename: ch.file, story_id: STORY_ID })
-                });
-                const data = await resp.json();
-                if (!resp.ok) throw new Error(data.detail || 'Generate failed');
-
-                activeJobs.push({ jobId: data.job_id, filename: ch.file, chapter: index });
-                setCookie('active_jobs', JSON.stringify(activeJobs));
-                setStatus(`Chapter ${ch.num}: Job <code>${data.job_id}</code> queued.`, 'info');
-
-                pollJob(data.job_id, ch.file, index);
-            } catch (err) {
-                setStatus(`Chapter ${ch.num} error: ${err.message}`, 'error');
-                document.getElementById('runAllBtn').disabled = false;
-                document.getElementById('runOneBtn').disabled = false;
-            }
-        }
-
-        function pollJob(jobId, filename, chapterIndex) {
-            const check = async () => {
-                try {
-                    const resp = await fetch(`${API_BASE}/status/${jobId}`);
-                    const data = await resp.json();
-                    const state = data.status || 'UNKNOWN';
-
-                    if (state === 'COMPLETED') {
-                        setStatus(`Chapter ${chapterIndex + 1}: <strong>${filename}</strong> completed and saved!`, 'success');
-                        removeJob(jobId);
-                        refreshImages();
-                        document.getElementById('runAllBtn').disabled = false;
-                        document.getElementById('runOneBtn').disabled = false;
-                        return;
-                    }
-                    if (['FAILED', 'CANCELLED', 'TIMED_OUT'].includes(state)) {
-                        setStatus(`Chapter ${chapterIndex + 1} failed: <strong>${state}</strong>`, 'error');
-                        removeJob(jobId);
-                        document.getElementById('runAllBtn').disabled = false;
-                        document.getElementById('runOneBtn').disabled = false;
-                        return;
-                    }
-                    setStatus(`Chapter ${chapterIndex + 1}: <code>${jobId}</code> status <strong>${state}</strong> (polling...)`, 'info');
-                    setTimeout(check, 10000);
-                } catch (err) {
-                    setStatus(`Polling error: ${err.message}. Click Resume to retry.`, 'warning');
-                    document.getElementById('pollBtn').style.display = 'inline-block';
-                    document.getElementById('runAllBtn').disabled = false;
-                    document.getElementById('runOneBtn').disabled = false;
-                }
-            };
-            check();
-        }
-
-        function removeJob(jobId) {
-            activeJobs = activeJobs.filter(j => j.jobId !== jobId);
-            setCookie('active_jobs', JSON.stringify(activeJobs));
-        }
-
-        function resumePolling() {
-            const saved = getCookie('active_jobs');
-            if (!saved) { setStatus('No saved jobs to resume.', 'warning'); return; }
-            try {
-                activeJobs = JSON.parse(saved);
-                activeJobs.forEach(j => pollJob(j.jobId, j.filename, j.chapter));
-                document.getElementById('pollBtn').style.display = 'none';
-            } catch (e) {
-                setStatus('Could not resume jobs.', 'error');
-            }
-        }
-
-        function refreshImages() {
-            renderCarousel();
-            renderStoryboard();
-        }
-
         // View switching
         function showView(view) {
             document.getElementById('carousel-view').classList.toggle('active', view === 'carousel');
@@ -680,7 +554,7 @@
             img.alt = ch.title;
             img.onload = () => { imgWrapper.innerHTML = ''; imgWrapper.appendChild(img); };
             img.onerror = () => {
-                imgWrapper.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>Click "Generate" to create this image</p></div>`;
+                imgWrapper.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>Images generated on Fly.io</p></div>`;
             };
 
             document.getElementById('infoTitle').textContent = ch.title;
@@ -728,7 +602,7 @@
                     imgDiv.appendChild(badge);
                 };
                 img.onerror = () => {
-                    imgDiv.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:0.75rem">Not yet generated</p></div>`;
+                    imgDiv.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:0.75rem">Images on Fly.io</p></div>`;
                     const badge = document.createElement('span');
                     badge.className = 'generate-badge';
                     badge.textContent = 'Generate';

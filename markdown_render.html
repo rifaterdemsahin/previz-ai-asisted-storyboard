@@ -361,10 +361,10 @@
             content.innerHTML = '<p class="loading">Loading...</p>';
 
             try {
-                const resp = await fetch(file);
+                const resp = await fetch(`${API_BASE}/md/${file}`);
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                const md = await resp.text();
-                content.innerHTML = mdToHtml(md);
+                const data = await resp.json();
+                content.innerHTML = mdToHtml(data.content);
             } catch (err) {
                 content.innerHTML = `<p class="error">Failed to load ${file}: ${err.message}</p>`;
             }

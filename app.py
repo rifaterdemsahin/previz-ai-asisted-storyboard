@@ -310,6 +310,16 @@ def read_page(page: str):
     raise HTTPException(status_code=404, detail=f"{page}.html not found")
 
 
+@app.get("/md/{path:path}")
+def serve_markdown(path: str):
+    """Serve markdown files for the docs viewer."""
+    file_path = BASE_DIR / path
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {path}")
+    content = file_path.read_text(encoding="utf-8")
+    return JSONResponse(content={"content": content})
+
+
 @app.get("/health")
 def health():
     return {

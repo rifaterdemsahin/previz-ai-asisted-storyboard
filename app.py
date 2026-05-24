@@ -320,6 +320,39 @@ def serve_markdown(path: str):
     return JSONResponse(content={"content": content})
 
 
+@app.post("/update-story-images")
+def update_story_images(body: dict) -> dict:
+    """Update story.json with image URLs after generation."""
+    if not blob_service:
+        raise HTTPException(status_code=500, detail="Azure Blob Storage not configured")
+
+    story_id = body.get("story_id", "story-rifat")
+    chapter_num = body.get("chapter", 1)
+    image_url = body.get("image_url", "")
+
+    container = _get_story_container(story_id)
+    blob_client = blob_service.get_blob_client(container=container, blob="story.json")
+
+    try:
+        story = json.loads(blob_client.download_blob().readall().decode("utf-8"))
+    except Exception:
+        # Fallback to local
+        story = json.loads((DATA_DIR / "story.json").read_text(encoding="utf-8"))
+
+    for ch in story.get("chapters", []):
+        if ch.get("chapter") == chapter_num:
+            ch["image_url"] = image_url
+            break
+
+    blob_client.upload_blob(
+        json.dumps(story, indent=2, ensure_ascii=False).encode("utf-8"),
+        overwrite=True,
+        content_settings=ContentSettings(content_type="application/json"),
+    )
+
+    return {"updated": True, "container": container, "chapter": chapter_num, "image_url": image_url}
+
+
 @app.get("/health")
 def health():
     return {

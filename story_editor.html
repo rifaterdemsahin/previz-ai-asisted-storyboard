@@ -287,12 +287,126 @@
             flex-wrap: wrap;
         }
 
+        /* Gemini Popup */
+        .gemini-popup {
+            display: none;
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 420px;
+            max-height: 600px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+            z-index: 1000;
+            flex-direction: column;
+        }
+        .gemini-popup.active {
+            display: flex;
+        }
+        .gemini-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--bg-card);
+        }
+        .gemini-header h4 {
+            color: var(--accent);
+            font-size: 1rem;
+        }
+        .gemini-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+        .gemini-body {
+            padding: 1rem 1.2rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .gemini-body textarea {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--bg-card);
+            color: var(--text);
+            padding: 0.7rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            min-height: 80px;
+            resize: vertical;
+            margin-bottom: 0.5rem;
+        }
+        .gemini-body .response {
+            background: var(--bg);
+            border: 1px solid var(--bg-card);
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text);
+            min-height: 60px;
+            margin-top: 0.5rem;
+            white-space: pre-wrap;
+        }
+        .gemini-actions {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.75rem 1.2rem;
+            border-top: 1px solid var(--bg-card);
+        }
+        .gemini-actions button {
+            flex: 1;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .gemini-actions button.secondary {
+            background: var(--bg-card);
+            color: var(--text);
+        }
+        .gemini-fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(56,189,248,0.4);
+            z-index: 999;
+            transition: transform 0.2s;
+        }
+        .gemini-fab:hover {
+            transform: scale(1.1);
+        }
+        .gemini-fab svg {
+            width: 24px;
+            height: 24px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             header { padding: 1rem; }
             main { padding: 1rem; }
             .reader-view { padding: 1rem; }
             .editor-form { padding: 1rem; }
+            .gemini-popup { width: calc(100% - 2rem); right: 1rem; bottom: 1rem; }
         }
     </style>
 </head>
@@ -373,6 +487,27 @@
         </div>
         <div>Built with RunPod &middot; Azure Blob &middot; FastAPI</div>
     </footer>
+
+    <!-- Gemini Helper Popup -->
+    <button class="gemini-fab" id="geminiFab" onclick="openGemini()" title="Gemini AI Helper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6v6l4 2"/></svg>
+    </button>
+
+    <div class="gemini-popup" id="geminiPopup">
+        <div class="gemini-header">
+            <h4>Gemini AI Helper</h4>
+            <button class="gemini-close" onclick="closeGemini()">&times;</button>
+        </div>
+        <div class="gemini-body">
+            <label style="font-size:0.75rem;font-weight:600;color:var(--accent);text-transform:uppercase;">Ask Gemini to improve this script</label>
+            <textarea id="geminiPrompt" placeholder="e.g. Make the prompt more cinematic and detailed..."></textarea>
+            <div class="response" id="geminiResponse">Response will appear here...</div>
+        </div>
+        <div class="gemini-actions">
+            <button onclick="askGemini()">Ask Gemini</button>
+            <button class="secondary" onclick="injectGemini()">Inject into Editor</button>
+        </div>
+    </div>
 
     <script>
         const API_BASE = window.location.origin;
@@ -456,48 +591,78 @@
             });
         });
 
-        function toggleView() {
-            const reader = document.getElementById('readerView');
-            const editor = document.getElementById('editorView');
-            const btn = document.getElementById('toggleBtn');
-            const saveBtn = document.getElementById('saveBtn');
-
-            if (reader.style.display === 'none') {
-                reader.style.display = 'block';
-                editor.classList.remove('active');
-                btn.textContent = 'Switch to Editor';
-                saveBtn.style.display = 'none';
-                renderReader();
-            } else {
-                reader.style.display = 'none';
-                editor.classList.add('active');
-                btn.textContent = 'Switch to Reader';
-                saveBtn.style.display = 'inline-block';
-            }
+        // Gemini Helper
+        function openGemini() {
+            document.getElementById('geminiPopup').classList.add('active');
+            document.getElementById('geminiFab').style.display = 'none';
+            // Pre-fill with current chapter text
+            const ch = storyData.chapters[currentEditIndex];
+            const currentText = document.getElementById('editText').value;
+            const currentPrompt = document.getElementById('editPrompt').value;
+            document.getElementById('geminiPrompt').value = 
+                `Improve Chapter ${ch.chapter}: "${ch.title}"\n\nStory text:\n${currentText}\n\nImage prompt:\n${currentPrompt}\n\nPlease make the image prompt more cinematic and detailed.`;
+        }
+        function closeGemini() {
+            document.getElementById('geminiPopup').classList.remove('active');
+            document.getElementById('geminiFab').style.display = 'flex';
         }
 
-        async function saveStory() {
-            const pill = document.getElementById('statusPill');
-            pill.className = 'status-pill active info';
-            pill.textContent = 'Saving to Azure...';
+        async function askGemini() {
+            const prompt = document.getElementById('geminiPrompt').value;
+            const responseDiv = document.getElementById('geminiResponse');
+            responseDiv.textContent = 'Thinking...';
 
             try {
-                const resp = await fetch(`${API_BASE}/save-story`, {
+                const resp = await fetch(`${API_BASE}/gemini`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ story_id: STORY_ID, story: storyData })
+                    body: JSON.stringify({
+                        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+                    })
                 });
                 const data = await resp.json();
-                if (!resp.ok) throw new Error(data.detail || 'Save failed');
+                if (!resp.ok) throw new Error(data.detail || 'Gemini request failed');
 
-                pill.className = 'status-pill active success';
-                pill.textContent = `Saved to Azure container: ${data.container}`;
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+                responseDiv.textContent = text;
             } catch (err) {
-                pill.className = 'status-pill active error';
-                pill.textContent = `Save failed: ${err.message}`;
+                responseDiv.textContent = `Error: ${err.message}`;
             }
         }
 
+        function injectGemini() {
+            const response = document.getElementById('geminiResponse').textContent;
+            if (!response || response === 'Response will appear here...' || response === 'Thinking...') {
+                alert('No response to inject. Ask Gemini first.');
+                return;
+            }
+            // Try to extract image prompt from response
+            const lines = response.split('\n');
+            let extractedPrompt = '';
+            let inPrompt = false;
+            for (const line of lines) {
+                if (line.toLowerCase().includes('image prompt') || line.toLowerCase().includes('prompt:')) {
+                    inPrompt = true;
+                    continue;
+                }
+                if (inPrompt) {
+                    if (line.trim() === '' || line.startsWith('---')) break;
+                    extractedPrompt += line + '\n';
+                }
+            }
+            if (extractedPrompt.trim()) {
+                document.getElementById('editPrompt').value = extractedPrompt.trim();
+                // Trigger input event to update storyData
+                document.getElementById('editPrompt').dispatchEvent(new Event('input'));
+            } else {
+                // If no structured prompt found, inject the whole response into text
+                document.getElementById('editText').value = response;
+                document.getElementById('editText').dispatchEvent(new Event('input'));
+            }
+            closeGemini();
+        }
+
+        // Load story
         loadStory();
     </script>
 </body>

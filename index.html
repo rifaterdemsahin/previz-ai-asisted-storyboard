@@ -99,6 +99,37 @@
             flex: 1;
         }
 
+        /* Story Selector */
+        .story-selector {
+            background: var(--bg-elevated);
+            border: 1px solid var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .story-selector h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .story-selector select {
+            background: var(--bg);
+            border: 1px solid var(--bg-card);
+            color: var(--text);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            min-width: 260px;
+            cursor: pointer;
+        }
+        .story-selector .story-meta {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
         /* Generate Panel */
         .generate-panel {
             background: var(--bg-elevated);
@@ -106,6 +137,10 @@
             border-radius: var(--radius);
             padding: 1.5rem;
             margin-bottom: 2rem;
+            display: none;
+        }
+        .generate-panel.active {
+            display: block;
         }
         .generate-panel h3 {
             font-size: 1.1rem;
@@ -391,11 +426,30 @@
     </header>
 
     <main>
-        <!-- Demo Banner -->
-        <div style="background:rgba(56,189,248,0.1);border:1px solid var(--accent);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem;text-align:center;">
-            <h2 style="color:var(--accent);margin-bottom:0.5rem;font-size:1.3rem;">Demo Preview</h2>
-            <p style="color:var(--text-muted);margin-bottom:1rem;">This is the static GitHub Pages preview. The full app with AI image generation runs on Fly.io.</p>
-            <a href="https://previz-ai-storyboard.fly.dev/" target="_blank" rel="noopener" style="display:inline-block;background:var(--accent);color:var(--bg);padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Open Live App on Fly.io</a>
+        <!-- Story Selector -->
+        <div class="story-selector" id="storySelectorPanel">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                Select Story
+            </h3>
+            <select id="storySelect" onchange="loadSelectedStory()">
+                <option value="">Loading stories...</option>
+            </select>
+            <div class="story-meta" id="storyMeta"></div>
+        </div>
+
+        <!-- Generate Panel (Fly.io only) -->
+        <div class="generate-panel" id="generatePanel">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                Generate Images
+            </h3>
+            <div class="generate-row">
+                <button id="runAllBtn" onclick="runBatch()">Generate All Chapters</button>
+                <button id="runOneBtn" onclick="runSingle()">Generate Current Chapter</button>
+                <button id="pollBtn" class="secondary" onclick="resumePolling()" style="display:none">Resume Polling</button>
+            </div>
+            <div id="statusBar" class="status-bar"></div>
         </div>
 
         <!-- Carousel View -->
@@ -407,7 +461,7 @@
                 <div class="carousel-image-wrapper" id="carouselImage">
                     <div class="placeholder">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                        <p>Loading story...</p>
+                        <p>Select a story to view</p>
                     </div>
                 </div>
                 <button class="carousel-btn" id="nextBtn" onclick="nextChapter()" aria-label="Next">
@@ -477,38 +531,72 @@
         // Detect demo mode (GitHub Pages vs Fly.io)
         const IS_DEMO = window.location.hostname.includes('github.io');
         if (IS_DEMO) {
-            document.getElementById('demoBanner').style.display = 'block';
-            document.getElementById('runAllBtn').disabled = true;
-            document.getElementById('runOneBtn').disabled = true;
-            document.getElementById('runAllBtn').title = 'Generation only works on Fly.io';
-            document.getElementById('runOneBtn').title = 'Generation only works on Fly.io';
+            document.getElementById('storySelectorPanel').innerHTML = `
+                <h3>Demo Preview</h3>
+                <p style="color:var(--text-muted);margin-bottom:0.75rem;">This is the static GitHub Pages preview.</p>
+                <a href="https://previz-ai-storyboard.fly.dev/" target="_blank" rel="noopener" style="display:inline-block;background:var(--accent);color:var(--bg);padding:0.6rem 1.2rem;border-radius:8px;text-decoration:none;font-weight:600;">Open Live App on Fly.io</a>
+            `;
+        } else {
+            document.getElementById('generatePanel').classList.add('active');
         }
 
-        // Load story from backend (or local JSON on GitHub Pages)
-        async function loadStory() {
+        // Load stories list
+        async function loadStories() {
+            if (IS_DEMO) return;
+            try {
+                const resp = await fetch(`${API_BASE}/stories`);
+                const data = await resp.json();
+                const select = document.getElementById('storySelect');
+                select.innerHTML = '';
+                (data.stories || []).forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    if (s === STORY_ID) opt.selected = true;
+                    select.appendChild(opt);
+                });
+                if (!data.stories || data.stories.length === 0) {
+                    select.innerHTML = '<option value="story-rifat">story-rifat</option>';
+                }
+            } catch (err) {
+                console.error('Failed to load stories:', err);
+            }
+        }
+
+        // Load selected story
+        async function loadSelectedStory() {
+            const select = document.getElementById('storySelect');
+            const storyId = select.value || 'story-rifat';
+            window.CURRENT_STORY = storyId;
+            window.AZURE_STORAGE_BASE = `https://dpsbimages.blob.core.windows.net/${storyId}`;
+            document.getElementById('storyMeta').textContent = `Loading ${storyId}...`;
+
             try {
                 let data;
                 if (IS_DEMO) {
-                    // On GitHub Pages, fetch local story.json
                     const resp = await fetch('data/story.json');
                     data = await resp.json();
                 } else {
-                    const resp = await fetch(`${API_BASE}/story?story=${STORY_ID}`);
+                    const resp = await fetch(`${API_BASE}/story?story=${storyId}`);
                     data = await resp.json();
                 }
-                chapters = data.chapters.map((ch, i) => ({
+
+                chapters = (data.chapters || []).map((ch, i) => ({
                     num: ch.chapter || i + 1,
                     title: ch.title,
                     setting: ch.setting,
                     text: ch.text,
                     prompt: ch.image_prompt,
+                    image_url: ch.image_url || '',
                     file: `txt2img_ch${String(i + 1).padStart(2, '0')}_${ch.title.toLowerCase().replace(/\s+/g, '_').replace(/'/g, '')}.png`
                 }));
+                currentChapter = 0;
                 renderCarousel();
                 renderStoryboard();
+                document.getElementById('storyMeta').textContent = `${chapters.length} chapters · Source: ${data._source || 'local'} · ${storyId}`;
             } catch (err) {
                 console.error('Failed to load story:', err);
-                document.getElementById('infoText').textContent = 'Failed to load story.json.';
+                document.getElementById('storyMeta').textContent = `Failed to load ${storyId}`;
             }
         }
 
@@ -533,6 +621,116 @@
             document.getElementById('statusBar').className = 'status-bar';
         }
 
+        // Generation
+        async function runBatch() {
+            document.getElementById('runAllBtn').disabled = true;
+            document.getElementById('runOneBtn').disabled = true;
+            setStatus('Starting batch generation for all chapters...', 'info');
+
+            for (let i = 0; i < chapters.length; i++) {
+                await generateChapter(i);
+                await new Promise(r => setTimeout(r, 2000));
+            }
+        }
+
+        async function runSingle() {
+            document.getElementById('runAllBtn').disabled = true;
+            document.getElementById('runOneBtn').disabled = true;
+            await generateChapter(currentChapter);
+        }
+
+        async function generateChapter(index) {
+            const ch = chapters[index];
+            try {
+                setStatus(`Chapter ${ch.num}: Submitting "${ch.title}"...`, 'info');
+                const resp = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: ch.prompt, filename: ch.file, story_id: window.CURRENT_STORY || STORY_ID })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.detail || 'Generate failed');
+
+                activeJobs.push({ jobId: data.job_id, filename: ch.file, chapter: index });
+                setCookie('active_jobs', JSON.stringify(activeJobs));
+                setStatus(`Chapter ${ch.num}: Job <code>${data.job_id}</code> queued.`, 'info');
+
+                pollJob(data.job_id, ch.file, index);
+            } catch (err) {
+                setStatus(`Chapter ${ch.num} error: ${err.message}`, 'error');
+                document.getElementById('runAllBtn').disabled = false;
+                document.getElementById('runOneBtn').disabled = false;
+            }
+        }
+
+        function pollJob(jobId, filename, chapterIndex) {
+            const check = async () => {
+                try {
+                    const resp = await fetch(`${API_BASE}/status/${jobId}`);
+                    const data = await resp.json();
+                    const state = data.status || 'UNKNOWN';
+
+                    if (state === 'COMPLETED') {
+                        setStatus(`Chapter ${chapterIndex + 1}: <strong>${filename}</strong> completed and saved!`, 'success');
+                        removeJob(jobId);
+                        // Save image URL into story.json
+                        const imageUrl = `${window.AZURE_STORAGE_BASE || AZURE_STORAGE_BASE}/${filename}`;
+                        chapters[chapterIndex].image_url = imageUrl;
+                        fetch(`${API_BASE}/update-story-images`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                story_id: window.CURRENT_STORY || STORY_ID,
+                                chapter: chapterIndex + 1,
+                                image_url: imageUrl
+                            })
+                        }).catch(err => console.error('Failed to update story image:', err));
+                        refreshImages();
+                        document.getElementById('runAllBtn').disabled = false;
+                        document.getElementById('runOneBtn').disabled = false;
+                        return;
+                    }
+                    if (['FAILED', 'CANCELLED', 'TIMED_OUT'].includes(state)) {
+                        setStatus(`Chapter ${chapterIndex + 1} failed: <strong>${state}</strong>`, 'error');
+                        removeJob(jobId);
+                        document.getElementById('runAllBtn').disabled = false;
+                        document.getElementById('runOneBtn').disabled = false;
+                        return;
+                    }
+                    setStatus(`Chapter ${chapterIndex + 1}: <code>${jobId}</code> status <strong>${state}</strong> (polling...)`, 'info');
+                    setTimeout(check, 10000);
+                } catch (err) {
+                    setStatus(`Polling error: ${err.message}. Click Resume to retry.`, 'warning');
+                    document.getElementById('pollBtn').style.display = 'inline-block';
+                    document.getElementById('runAllBtn').disabled = false;
+                    document.getElementById('runOneBtn').disabled = false;
+                }
+            };
+            check();
+        }
+
+        function removeJob(jobId) {
+            activeJobs = activeJobs.filter(j => j.jobId !== jobId);
+            setCookie('active_jobs', JSON.stringify(activeJobs));
+        }
+
+        function resumePolling() {
+            const saved = getCookie('active_jobs');
+            if (!saved) { setStatus('No saved jobs to resume.', 'warning'); return; }
+            try {
+                activeJobs = JSON.parse(saved);
+                activeJobs.forEach(j => pollJob(j.jobId, j.filename, j.chapter));
+                document.getElementById('pollBtn').style.display = 'none';
+            } catch (e) {
+                setStatus('Could not resume jobs.', 'error');
+            }
+        }
+
+        function refreshImages() {
+            renderCarousel();
+            renderStoryboard();
+        }
+
         // View switching
         function showView(view) {
             document.getElementById('carousel-view').classList.toggle('active', view === 'carousel');
@@ -545,7 +743,7 @@
         function renderCarousel() {
             if (!chapters.length) return;
             const ch = chapters[currentChapter];
-            const imgPath = `${AZURE_STORAGE_BASE}/${ch.file}`;
+            const imgPath = ch.image_url || `${window.AZURE_STORAGE_BASE || AZURE_STORAGE_BASE}/${ch.file}`;
 
             const imgWrapper = document.getElementById('carouselImage');
             imgWrapper.innerHTML = '';
@@ -554,7 +752,7 @@
             img.alt = ch.title;
             img.onload = () => { imgWrapper.innerHTML = ''; imgWrapper.appendChild(img); };
             img.onerror = () => {
-                imgWrapper.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>Images generated on Fly.io</p></div>`;
+                imgWrapper.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p>${IS_DEMO ? 'Demo preview — no images' : 'Click Generate to create this image'}</p></div>`;
             };
 
             document.getElementById('infoTitle').textContent = ch.title;
@@ -583,7 +781,7 @@
             const container = document.getElementById('storyboard-view');
             container.innerHTML = '';
             chapters.forEach((ch, i) => {
-                const imgPath = `${AZURE_STORAGE_BASE}/${ch.file}`;
+                const imgPath = ch.image_url || `${window.AZURE_STORAGE_BASE || AZURE_STORAGE_BASE}/${ch.file}`;
                 const card = document.createElement('div');
                 card.className = 'story-card';
                 card.onclick = () => openModal(i);
@@ -602,7 +800,7 @@
                     imgDiv.appendChild(badge);
                 };
                 img.onerror = () => {
-                    imgDiv.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:0.75rem">Images on Fly.io</p></div>`;
+                    imgDiv.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><p style="font-size:0.75rem">${IS_DEMO ? 'Demo' : 'Not yet generated'}</p></div>`;
                     const badge = document.createElement('span');
                     badge.className = 'generate-badge';
                     badge.textContent = 'Generate';
@@ -633,7 +831,7 @@
         // Modal
         function openModal(index) {
             const ch = chapters[index];
-            const imgPath = `${API_BASE}/images/${STORY_ID}/${ch.file}`;
+            const imgPath = ch.image_url || `${API_BASE}/images/${window.CURRENT_STORY || STORY_ID}/${ch.file}`;
             document.getElementById('modalTitle').textContent = `Chapter ${ch.num}: ${ch.title}`;
             document.getElementById('modalSetting').textContent = ch.setting;
             document.getElementById('modalText').textContent = ch.text;
@@ -678,7 +876,8 @@
         }
 
         // Init
-        loadStory();
+        loadStories();
+        loadSelectedStory();
     </script>
 </body>
 </html>
